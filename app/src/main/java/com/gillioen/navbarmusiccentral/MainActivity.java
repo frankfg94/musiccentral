@@ -20,6 +20,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.core.app.ActivityCompat;
@@ -151,11 +152,29 @@ public class MainActivity extends AppCompatActivity {
          */
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case R.id.preferences:
+            {
+                Intent intent = new Intent();
+                intent.setClassName(this, "com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity");
+                startActivity(intent);
+                return true;
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

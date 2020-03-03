@@ -44,6 +44,13 @@
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
         </activity>
+
+        <!-- Preferences -->
+        <activity
+            android:name="com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity"
+            android:label="Preferences">
+        </activity>
+
     </application>
 
 </manifest>
