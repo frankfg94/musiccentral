@@ -1,4 +1,4 @@
-package com.gillioen.navbarmusiccentral.ui.gallery;
+package com.gillioen.navbarmusiccentral.ui.playlists;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

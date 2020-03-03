@@ -1,4 +1,4 @@
-package com.gillioen.navbarmusiccentral.ui.gallery;
+package com.gillioen.navbarmusiccentral.ui.playlists;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.gillioen.navbarmusiccentral.ApiType;
+import com.gillioen.navbarmusiccentral.AudioTrack;
 import com.gillioen.navbarmusiccentral.MainActivity;
 import com.gillioen.navbarmusiccentral.Playlist;
 import com.gillioen.navbarmusiccentral.R;
@@ -57,7 +59,7 @@ public class GalleryFragment extends Fragment {
         addListeners(gridLayout);
         LoadPlaylistLocal();
         try {
-            AddSpotifyPlayLists(gridLayout,((MainActivity) getActivity()).allPlaylists);
+            AddAPISPlayLists(gridLayout,((MainActivity) getActivity()).allPlaylists);
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -92,7 +94,7 @@ public class GalleryFragment extends Fragment {
         }
     }
 
-    private void AddSpotifyPlayLists(GridLayout layout, ArrayList<Playlist> pLists) throws ExecutionException, InterruptedException, JSONException {
+    private void AddAPISPlayLists(GridLayout layout, ArrayList<Playlist> pLists) throws ExecutionException, InterruptedException, JSONException {
         for(Playlist pl : pLists) {
             CardView cv = generateCardViewFromPlaylist(pl);
             layout.addView(cv);
@@ -125,6 +127,21 @@ public class GalleryFragment extends Fragment {
                     .placeholder(R.drawable.ic_launcher_background)
                     .into(img);
         }
+
+        ImageView apiIcon = cView.findViewById(R.id.apiIconCard);
+
+        if(pl.tracks.size() > 0 )
+        {
+            AudioTrack firstTrack = pl.tracks.get(0);
+            if(firstTrack.api == ApiType.Spotify )
+                apiIcon.setImageResource(R.drawable.spotify);
+            else if (firstTrack.api == ApiType.Deezer)
+                apiIcon.setImageResource(R.drawable.deezer);
+            else
+                apiIcon.setImageResource(0);
+        }
+
+
         TextView tv = (TextView) parentLayout.getChildAt(POS_TEXTVIEW);
         tv.setText(pl.name);
         Log.i("CVIEW","Generated Card view for " + pl.name + "'\'" + pl.tracks.size() + " tracks");
