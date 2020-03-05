@@ -64,7 +64,6 @@ public class AudioTrackListAdapter extends ArrayAdapter<AudioTrack> {
             ImageView imV = v.findViewById(R.id.imageView);
             ImageView apiIconImg = v.findViewById(R.id.apiIcon);
 
-
             titleTv.setText(tracks.get(position).title);
             descriptionTv.setText(tracks.get(position).artist);
             //imV.setImageResource(tracks.get(position).imgPath);

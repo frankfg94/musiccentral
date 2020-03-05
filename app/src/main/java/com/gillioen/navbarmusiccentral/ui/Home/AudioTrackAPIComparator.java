@@ -4,10 +4,10 @@ import com.gillioen.navbarmusiccentral.AudioTrack;
 
 import java.util.Comparator;
 
-public class AudioTrackAlphabetComparator implements Comparator<AudioTrack> {
+public class AudioTrackAPIComparator implements Comparator<AudioTrack> {
     @Override
     public int compare(AudioTrack o1, AudioTrack o2) {
-        return o1.getTitle().compareTo(o2.getTitle());
+        return o1.getApi().compareTo(o2.getApi());
     }
 
     @Override

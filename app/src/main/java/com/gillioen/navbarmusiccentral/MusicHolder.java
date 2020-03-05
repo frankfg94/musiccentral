@@ -35,11 +35,11 @@ public class MusicHolder extends RecyclerView.ViewHolder {
 
     public MusicHolder(@NonNull View itemView, BaseAudioPlayer localPlayer, BaseAudioPlayer currentPlayer, BaseAudioPlayer deezerPlayer, Boolean isSpotifyPremium, BaseAudioPlayer spotifyPlayer, Context context) {
         super(itemView);
-        tviewTitle =  (TextView) itemView.findViewById(R.id.tviewTitle);
-        tviewAuthor = (TextView) itemView.findViewById(R.id.tviewAuthor);
-        imageView = (ImageView) itemView.findViewById(R.id.imageView);
-        apiIcon = (ImageView) itemView.findViewById(R.id.apiIcon);
-        myElement = (LinearLayoutCompat) itemView.findViewById(R.id.myElement);
+        tviewTitle = itemView.findViewById(R.id.tviewTitle);
+        tviewAuthor = itemView.findViewById(R.id.tviewAuthor);
+        imageView = itemView.findViewById(R.id.imageView);
+        apiIcon = itemView.findViewById(R.id.apiIcon);
+        myElement = itemView.findViewById(R.id.myElement);
 
         this.localPlayer = localPlayer;
         this.currentPlayer = currentPlayer;
@@ -54,11 +54,11 @@ public class MusicHolder extends RecyclerView.ViewHolder {
         tviewAuthor.setText(currentTrack.getArtist());
 
         if(currentTrack.imgPath!=null)
-        Picasso.with(c)
-                .load(currentTrack.imgPath)
-                .fit()
-                .placeholder(R.drawable.ic_launcher_background)
-                .into(imageView);
+            Picasso.with(c)
+                    .load(currentTrack.imgPath)
+                    .fit()
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .into(imageView);
         else
             imageView.setImageResource(R.drawable.ic_launcher_background);
 

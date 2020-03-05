@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.gillioen.navbarmusiccentral.ui.playlists.HomeFragment"
+        android:name="com.gillioen.navbarmusiccentral.ui.Home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="com.gillioen.navbarmusiccentral.ui.gallery.GalleryFragment"
+        android:name="com.gillioen.navbarmusiccentral.ui.playlists.PlaylistFragment"
         android:label="@string/menu_playlists"
         tools:layout="@layout/fragment_playlists" />
 
