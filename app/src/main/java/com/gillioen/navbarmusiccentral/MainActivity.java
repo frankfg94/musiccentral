@@ -24,6 +24,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.core.app.ActivityCompat;
@@ -49,7 +50,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.Menu;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -57,7 +57,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -76,16 +81,16 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     private String spotifyToken = null;
     private String deezerToken = null;
 
-    AudioTrackListAdapter adapter;
-
+    public MusicAdapter musicAdapter;
     // Remote
-    public static BaseAudioPlayer spotifyPlayer;
-    BaseAudioPlayer localPlayer;
-    BaseAudioPlayer currentPlayer;
-    BaseAudioPlayer deezerPlayer;
+    public SpotifyPlayer spotifyPlayer;
+    public LocalPlayer localPlayer;
+    public BaseAudioPlayer currentPlayer;
+    public DeezerPlayer deezerPlayer;
     private boolean isSpotifyPremium = false;
 
     public ArrayList<Playlist> allPlaylists = new ArrayList<>();
+    public ArrayList<AudioTrack> musicList = new ArrayList<>();
 
     // ReyclerView
     RecyclerView recycler = null;
@@ -159,6 +164,23 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case R.id.preferences:
+            {
+                Intent intent = new Intent();
+                intent.setClassName(this, "com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity");
+                startActivity(intent);
+                return true;
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -271,10 +293,16 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     }
 
     public List<AudioTrack> getAllMusicsURISFromDeezer(String accessToken) throws ExecutionException, InterruptedException, JSONException, IOException, DeezerError {
-        return new DeezerGetTracksTask().execute(deezerAPI).get();
+
+        List<Playlist> pl = new DeezerGetPlaylistsTask().execute(deezerAPI).get();
+        List<AudioTrack> tracks = new ArrayList<>();
+        allPlaylists.addAll(pl);
+        for(Playlist p : pl)
+            tracks.addAll(p.tracks);
+
+        return tracks;
     }
 
-    public ArrayList<AudioTrack> musicList = new ArrayList<>();
     public ArrayList<AudioTrack> getAllMusicsPathsFromPhone()
     {
         ArrayList<AudioTrack> songList = new ArrayList<>();
@@ -286,15 +314,22 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             int titleIndex = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int artistIndex = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int locationIndex = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+            int dateIndex = songCursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
             do {
-                String curTitle = songCursor.getString(titleIndex);
-                String curArtist = songCursor.getString(artistIndex);
-                String curLocation = songCursor.getString(locationIndex);
+                 Integer dateTaken = songCursor.getInt(dateIndex);
+                    Calendar myCal = Calendar.getInstance();
+                    myCal.setTimeInMillis(dateTaken);
+                    Date creationDate = myCal.getTime();
+
+                    String curTitle = songCursor.getString(titleIndex);
+                 String curArtist = songCursor.getString(artistIndex);
+                 String curLocation = songCursor.getString(locationIndex);
                 AudioTrack track = new AudioTrack();
                 track.audioPath = curLocation;
                 track.imgPath = null;
                 track.title = curTitle;
                 track.artist = curArtist;
+                track.setDate(creationDate);
                 songList.add(track);
                 /*songList.add("Title : " + curTitle
                         + System.lineSeparator() + curArtist
@@ -324,9 +359,12 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             deezerError.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
-        adapter = new AudioTrackListAdapter(this,R.layout.activity_row,musicList);
-        recycler.setAdapter(new MusicAdapter(musicList, localPlayer, currentPlayer, deezerPlayer, isSpotifyPremium, spotifyPlayer, this));
+        //adapter = new AudioTrackListAdapter(this,R.layout.activity_row,musicList);
+        musicAdapter = new MusicAdapter(musicList, localPlayer, currentPlayer, deezerPlayer, isSpotifyPremium, spotifyPlayer, this);
+        recycler.setAdapter(musicAdapter);
         recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
     }
 
@@ -342,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         }
     }
 
-    private ArrayList<AudioTrack> getAllMusicsURISFromSpotify() throws ExecutionException, InterruptedException, JSONException {
+    private ArrayList<AudioTrack> getAllMusicsURISFromSpotify() throws ExecutionException, InterruptedException, JSONException, ParseException {
         ArrayList<AudioTrack> spotMusics = new ArrayList<>();
         MusicDownloaderTask downloader = new MusicDownloaderTask(spotifyToken);
         AsyncTask<String,Integer,String> playlists  = downloader.execute("https://api.spotify.com/v1/me/playlists");
@@ -395,6 +433,10 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 track.description = "description";
                 track.playListPath = playListURI;
                 track.api = ApiType.Spotify;
+                String releaseDateString = curTrackJSON.getJSONObject("album").getString("release_date");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date  date= simpleDateFormat.parse(releaseDateString);
+                track.setDate(date);
                 spotMusics.add(track);
                 tracksForCurPlaylist.add(track);
                 Log.i("SMUSIC",track.toString());
@@ -436,7 +478,10 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     @Override
     protected void onStop(){
         super.onStop();
-        if(spotifyPlayer != null)
+        if(deezerPlayer.tp!=null)
+            deezerPlayer.tp.release();
+
+        if(spotifyPlayer.remote != null)
             SpotifyAppRemote.disconnect(((SpotifyPlayer)spotifyPlayer).remote);
     }
 

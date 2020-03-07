@@ -16,16 +16,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeezerGetTracksTask extends AsyncTask<DeezerConnect,Integer, List<AudioTrack>> {
+public class DeezerGetPlaylistsTask extends AsyncTask<DeezerConnect,Integer, List<Playlist>> {
 
 
     @Override
-    protected List<AudioTrack> doInBackground(DeezerConnect... deezerConnects) {
-        ArrayList<AudioTrack> tracks = new ArrayList<>();
+    protected List<Playlist> doInBackground(DeezerConnect... deezerConnects) {
         DeezerRequest request = DeezerRequestFactory.requestCurrentUserPlaylists();
+        List<Track> plListTracks = new ArrayList<>();
         List<com.deezer.sdk.model.Playlist> deezPlaylists = null;
+        List<Playlist> deezLocalPlaylists = new ArrayList<>();
         try {
             deezPlaylists = (List<com.deezer.sdk.model.Playlist>) JsonUtils.deserializeJson(deezerConnects[0].requestSync(request));
+
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -36,12 +38,13 @@ public class DeezerGetTracksTask extends AsyncTask<DeezerConnect,Integer, List<A
         Log.i("DEEZER","Found" + deezPlaylists.size() + " playlists");
         for(com.deezer.sdk.model.Playlist pl : deezPlaylists)
         {
+            ArrayList<AudioTrack> tracksForCurPlaylist = new ArrayList<>();
             Playlist p = new Playlist();
             p.name = pl.getTitle();
             p.description = pl.getDescription();
             p.imgURL = pl.getMediumImageUrl();
+            p.url = String.valueOf(pl.getId());
             DeezerRequest deezerRequest = DeezerRequestFactory.requestPlaylistTracks(pl.getId());
-            List<Track> plListTracks = null;
             try {
                 plListTracks = (List<Track>) JsonUtils.deserializeJson(deezerConnects[0].requestSync(deezerRequest));
             } catch (JSONException e) {
@@ -60,13 +63,16 @@ public class DeezerGetTracksTask extends AsyncTask<DeezerConnect,Integer, List<A
                 track.title = t.getTitle();
                 track.description = "Deezer track";
                 track.artist = t.getArtist().getName();
+                track.setDate(t.getReleaseDate());
                 track.audioPath = String.valueOf(t.getId());
                 track.playListPath =  String.valueOf(pl.getId());
                 track.imgPath = t.getArtist().getSmallImageUrl();
                 Log.i("DEEZER",track.toString());
-                tracks.add(track);
+                tracksForCurPlaylist.add(track);
             }
+            p.tracks = tracksForCurPlaylist;
+            deezLocalPlaylists.add(p);
         }
-        return tracks;
+        return deezLocalPlaylists;
     }
 }

@@ -1,11 +1,19 @@
 package com.gillioen.navbarmusiccentral;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class AudioTrack implements Serializable
 {
     public String audioPath;
     public String title;
+    private Date date;
+    public String description;
+    public String imgPath;
+    public String artist;
+    public String playListPath; // Spotify only
+    public ApiType api = ApiType.None;
+
 
     public String getAudioPath() {
         return audioPath;
@@ -63,16 +71,18 @@ public class AudioTrack implements Serializable
         this.api = api;
     }
 
-    public String description;
-    public String imgPath;
-    public String artist;
-    public String playListPath; // Spotify only
-    public ApiType api = ApiType.None;
-
     @Override
     public String toString()
     {
         return title+" ("+audioPath+")";
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
 

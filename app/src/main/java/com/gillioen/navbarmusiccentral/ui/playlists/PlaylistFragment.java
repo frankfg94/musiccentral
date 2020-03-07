@@ -1,10 +1,11 @@
-package com.gillioen.navbarmusiccentral.ui.gallery;
+package com.gillioen.navbarmusiccentral.ui.playlists;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,6 +19,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.gillioen.navbarmusiccentral.ApiType;
+import com.gillioen.navbarmusiccentral.AudioTrack;
 import com.gillioen.navbarmusiccentral.MainActivity;
 import com.gillioen.navbarmusiccentral.Playlist;
 import com.gillioen.navbarmusiccentral.R;
@@ -27,19 +30,17 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
-public class GalleryFragment extends Fragment {
+public class PlaylistFragment extends Fragment {
 
-    private GalleryViewModel galleryViewModel;
+    private PlaylistViewModel galleryViewModel;
     GridLayout gridLayout;
     CardView dummyCardView;
 
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        galleryViewModel =
-                ViewModelProviders.of(this).get(GalleryViewModel.class);
+    public View onCreateView(@NonNull LayoutInflater inflater,ViewGroup container, Bundle savedInstanceState) {
+        galleryViewModel = ViewModelProviders.of(this).get(PlaylistViewModel.class);
 
         View root = inflater.inflate(R.layout.fragment_playlists, container, false);
         final TextView textView = root.findViewById(R.id.text_gallery);
@@ -54,10 +55,9 @@ public class GalleryFragment extends Fragment {
         int count = gridLayout.getChildCount();
         CardView child = (CardView)gridLayout.getChildAt(0);
         dummyCardView = child;
-        addListeners(gridLayout);
         LoadPlaylistLocal();
         try {
-            AddSpotifyPlayLists(gridLayout,((MainActivity) getActivity()).allPlaylists);
+            AddAPISPlayLists(gridLayout,((MainActivity) getActivity()).allPlaylists);
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -69,41 +69,16 @@ public class GalleryFragment extends Fragment {
         return root;
     }
 
-    private void addListeners(GridLayout gridLayout) {
-        for(int i = 0; i<gridLayout.getChildCount();i++){
-            CardView cardView=(CardView)gridLayout.getChildAt(i);
-            final int finalI= i;
-            cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Playlist pl = (Playlist)view.getTag();
-                    int trackCount =  pl.tracks.size();
-                    String text = "Nombre de morceaux :  " +trackCount;
-                    Toast.makeText(getActivity().getApplicationContext(),text,Toast.LENGTH_SHORT).show();
-                    try {
-
-                        //Remplacer par parselable
-                        MainActivity.spotifyPlayer.Play(pl.url);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
-    }
-
-    private void AddSpotifyPlayLists(GridLayout layout, ArrayList<Playlist> pLists) throws ExecutionException, InterruptedException, JSONException {
+    private void AddAPISPlayLists(GridLayout layout, ArrayList<Playlist> pLists) throws ExecutionException, InterruptedException, JSONException {
         for(Playlist pl : pLists) {
             CardView cv = generateCardViewFromPlaylist(pl);
             layout.addView(cv);
-            Log.i("CVIEW","Added Cur Child count : " + layout.getChildCount() );
-
+            Log.i("CVIEW","Added Cur Child count : " + layout.getChildCount());
         }
     }
     private void LoadPlaylistLocal() {
         // TODO
     }
-
 
     public int POS_IMAGE = 0;
     public int POS_TEXTVIEW = 1;
@@ -125,8 +100,52 @@ public class GalleryFragment extends Fragment {
                     .placeholder(R.drawable.ic_launcher_background)
                     .into(img);
         }
-        TextView tv = (TextView) parentLayout.getChildAt(POS_TEXTVIEW);
+
+        ImageView apiIcon = cView.findViewById(R.id.apiIconCard);
+
+        if(pl.tracks.size() > 0 )
+        {
+            AudioTrack firstTrack = pl.tracks.get(0);
+            if(firstTrack.api == ApiType.Spotify )
+                apiIcon.setImageResource(R.drawable.spotify);
+            else if (firstTrack.api == ApiType.Deezer)
+                apiIcon.setImageResource(R.drawable.deezer);
+            else
+                apiIcon.setImageResource(0);
+
+            // Playing music on click
+            cView.setOnClickListener(v -> {
+                MainActivity act = (MainActivity)getActivity();
+                try {
+                    switch (firstTrack.api)
+                    {
+                        case Deezer:
+                            act.spotifyPlayer.Stop();
+                            act.localPlayer.Stop();
+                            act.deezerPlayer.PlayPlaylist(pl.url);
+                            break;
+                        case Spotify:
+                            act.deezerPlayer.Stop();
+                            act.localPlayer.Stop();
+                            act.spotifyPlayer.Play(pl.url);
+                            break;
+                        case None:
+                            act.spotifyPlayer.Stop();
+                            act.localPlayer.Stop();
+                            act.localPlayer.Play(pl.url);
+                            break;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        TextView tv =  cView.findViewById(R.id.textViewCard);
         tv.setText(pl.name);
+
+
+
         Log.i("CVIEW","Generated Card view for " + pl.name + "'\'" + pl.tracks.size() + " tracks");
         return  cView;
     }

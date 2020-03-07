@@ -14,7 +14,7 @@ import java.util.List;
 
 public class MusicAdapter  extends RecyclerView.Adapter<MusicHolder> {
 
-    private List<AudioTrack> tracks = new ArrayList<AudioTrack>();
+    private List<AudioTrack> tracks;
     BaseAudioPlayer localPlayer;
     BaseAudioPlayer currentPlayer;
     BaseAudioPlayer deezerPlayer;
@@ -37,7 +37,6 @@ public class MusicAdapter  extends RecyclerView.Adapter<MusicHolder> {
     public MusicHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_row, parent,false);
         final MusicHolder musicHolder = new MusicHolder(layoutView, localPlayer, currentPlayer, deezerPlayer, isSpotifyPremium, spotifyPlayer, c);
-
         return musicHolder;
     }
 
@@ -52,5 +51,12 @@ public class MusicAdapter  extends RecyclerView.Adapter<MusicHolder> {
         Log.i("size", Integer.toString(tracks.size()));
         return tracks.size();
     }
+
+    public void filterList(ArrayList<AudioTrack> filteredList)
+    {
+        tracks = filteredList;
+        notifyDataSetChanged(); // On affiche les résultats de la recherche immédiatement
+    }
+
 
 }

@@ -22,7 +22,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
+            <ImageView
+                android:id="@+id/apiIconCard"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="bottom"
+                android:layout_weight="0.1"
+                android:src="@mipmap/ic_launcher"/>
+
             <TextView
+                android:id="@+id/textViewCard"
                 android:textAlignment="center"
                 android:text="Text"
                 android:width="100dp"
