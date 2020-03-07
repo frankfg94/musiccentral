@@ -7,6 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -55,9 +59,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ShakeEventManager.ShakeListener {
 
 
     private static final int  permissionRequest = 1;
@@ -84,6 +89,15 @@ public class MainActivity extends AppCompatActivity {
 
     // ReyclerView
     RecyclerView recycler = null;
+
+    //Sensor
+    private SensorManager sm;
+    private float acelVal;  //Current acceleration
+    private float acelLast; //Last acceleration
+    private float shake; //Result
+
+    //Sensor 2
+    private ShakeEventManager sd;
 
     // Request code will be used to verify if result comes from the login activity. Can be set to any integer.
     public static final int REQUEST_CODE = 1334;
@@ -134,22 +148,11 @@ public class MainActivity extends AppCompatActivity {
             DeezerAuthenticateFull(CLIENT_ID_DEEZER);
         }
 
-
-        /*
-        Button b = findViewById(R.id.butSwitchActivity);
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // Start the spotify playList activity
-                Intent i = new Intent(getApplicationContext(),PlaylistActivity.class);
-                i.putExtra("spotifyToken",spotifyToken);
-                i.putExtra("allPlaylists", allPlaylists);
-                startActivity(i);
-            }
-        });
-         */
+        sd = new ShakeEventManager();
+        sd.setListener(this);
+        sd.init(this);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -268,37 +271,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public List<AudioTrack> getAllMusicsURISFromDeezer(String accessToken) throws ExecutionException, InterruptedException, JSONException, IOException, DeezerError {
-
         return new DeezerGetTracksTask().execute(deezerAPI).get();
-        /*
-        DeezerDownloaderTask downloaderPlaylists = new DeezerDownloaderTask(accessToken);
-        AsyncTask<String,Integer,String> playlists  = downloaderPlaylists.execute("http://api.deezer.com/user/me/charts/playlists");
-        Log.i("DEEZER",playlists.get());
-        JSONArray plists =  new JSONArray(new JSONObject(playlists.get()));
-        for(int i = 0 ; i < plists.length(); i++)
-        {
-            JSONObject curPlaylists = plists.getJSONObject(i);
-            Playlist p = new Playlist();
-            p.name = curPlaylists.getString("title");
-            p.description = curPlaylists.getString("description");
-            p.imgURL = curPlaylists.getString("picture_medium");
-            int nbTracks = curPlaylists.getInt("nb_tracks");
-            JSONArray tracksForCurPlist = curPlaylists.getJSONArray("tracks");
-            for(int y = 0 ; y <  nbTracks; y++)
-            {
-                JSONObject curTrack = tracksForCurPlist.getJSONObject(i);
-                AudioTrack t = new AudioTrack();
-                t.title = curPlaylists.getString("title");
-                t.description = "Deezer track";
-                t.artist = curTrack.getJSONObject("artist").getString("name");
-                t.audioPath = curTrack.getString("preview");
-                t.playListPath = curPlaylists.getString("id");
-                t.api = ApiType.Deezer ;
-                tracks.add(t);
-            }
-            allPlaylists.add(p);
-        }
-         */
     }
 
     public ArrayList<AudioTrack> musicList = new ArrayList<>();
@@ -483,4 +456,38 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    @Override
+    public void onShake() {
+        Random r = new Random();
+        int randomTrack = r.nextInt(musicList.size() - 0 + 1) + 0;
+        AudioTrack random = musicList.get(randomTrack);
+        localPlayer.Stop();
+        spotifyPlayer.Stop();
+        if(deezerPlayer != null)
+            deezerPlayer.Stop();
+        try {
+            switch (random.api)
+            {
+                case None:
+                    currentPlayer = localPlayer;
+                    localPlayer.Play(random.audioPath);
+                    Log.i("Play Spot", "YES");
+                    break;
+                case Spotify:
+                    if(isSpotifyPremium)
+                        spotifyPlayer.Play(random.audioPath);
+                    else
+                        spotifyPlayer.Play("spotify:playlist:"+random.playListPath);
+                    break;
+                case Deezer:
+                    deezerPlayer.Play(random.audioPath);
+                    break;
+            }
+            Toast.makeText(getApplicationContext(), "Music shuffled!", Toast.LENGTH_SHORT).show();
+            // NotificationAudioBar.createNotification(,track,R.drawable.ic_music_note,1,1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
