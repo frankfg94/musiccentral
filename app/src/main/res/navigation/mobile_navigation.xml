@@ -18,10 +18,10 @@
         tools:layout="@layout/fragment_playlists" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.gillioen.navbarmusiccentral.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:id="@+id/nav_blindtrack"
+        android:name="com.gillioen.navbarmusiccentral.ui.BlindTest.BlindTrackFragment"
+        android:label="@string/menu_blindtest"
+        tools:layout="@layout/fragment_blindtrack"/>
 
     <fragment
         android:id="@+id/nav_tools"

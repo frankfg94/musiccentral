@@ -11,6 +11,7 @@ public class AudioTrack implements Serializable
     public String description;
     public String imgPath;
     public String artist;
+    public String genre;
     public String playListPath; // Spotify only
     public ApiType api = ApiType.None;
 

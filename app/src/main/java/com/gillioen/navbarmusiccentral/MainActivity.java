@@ -11,11 +11,11 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
 import com.deezer.sdk.model.Permissions;
 import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.connect.event.DialogListener;
 import com.deezer.sdk.network.request.event.DeezerError;
+import com.gillioen.navbarmusiccentral.BlindTest.BlindTrack;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -26,6 +26,8 @@ import android.view.View;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -125,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow,
+                R.id.nav_home, R.id.nav_gallery, R.id.nav_blindtrack,
                 R.id.nav_tools, R.id.nav_share, R.id.nav_send)
                 .setDrawerLayout(drawer)
                 .build();
@@ -347,6 +349,8 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         musicAdapter = new MusicAdapter(musicList, localPlayer, currentPlayer, deezerPlayer, isSpotifyPremium, spotifyPlayer, this);
         recycler.setAdapter(musicAdapter);
         recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+
     }
 
     public boolean isSpotifyPremium(JSONObject jsonObject)
@@ -482,37 +486,47 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         }
     };
 
-    @Override
-    public void onShake() {
-        Random r = new Random();
-        int randomTrack = r.nextInt(musicList.size() - 0 + 1) + 0;
-        AudioTrack random = musicList.get(randomTrack);
+    public void stopTracks()
+    {
+        localPlayer.Stop();
+        spotifyPlayer.Stop();
+        deezerPlayer.Stop();
+    }
+
+    public void playTrack(AudioTrack track)
+    {
         localPlayer.Stop();
         spotifyPlayer.Stop();
         if(deezerPlayer != null)
             deezerPlayer.Stop();
         try {
-            switch (random.api)
+            switch (track.api)
             {
                 case None:
                     currentPlayer = localPlayer;
-                    localPlayer.Play(random.audioPath);
-                    Log.i("Play Spot", "YES");
+                    localPlayer.Play(track.audioPath);
                     break;
                 case Spotify:
                     if(isSpotifyPremium)
-                        spotifyPlayer.Play(random.audioPath);
+                        spotifyPlayer.Play(track.audioPath);
                     else
-                        spotifyPlayer.Play("spotify:playlist:"+random.playListPath);
+                        spotifyPlayer.Play("spotify:playlist:"+track.playListPath);
                     break;
                 case Deezer:
-                    deezerPlayer.Play(random.audioPath);
+                    deezerPlayer.Play(track.audioPath);
                     break;
             }
-            Toast.makeText(getApplicationContext(), "Music shuffled!", Toast.LENGTH_SHORT).show();
             // NotificationAudioBar.createNotification(,track,R.drawable.ic_music_note,1,1);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    @Override
+    public void onShake() {
+        Random r = new Random();
+        int randomTrack = r.nextInt(musicList.size() - 0 + 1) + 0;
+        AudioTrack random = musicList.get(randomTrack);
+        playTrack(random);
+        Toast.makeText(getApplicationContext(), "Music shuffled!", Toast.LENGTH_SHORT).show();
     }
 }
