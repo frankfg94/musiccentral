@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -22,11 +21,9 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.gillioen.navbarmusiccentral.AudioTrack;
 import com.gillioen.navbarmusiccentral.MainActivity;
-import com.gillioen.navbarmusiccentral.Playlist;
 import com.gillioen.navbarmusiccentral.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -116,11 +113,11 @@ public class HomeFragment extends Fragment {
         MainActivity ma = ((MainActivity)getActivity());
         for(AudioTrack t : ma.musicList)
         {
-                if(t.getTitle().toLowerCase().contains(text.toLowerCase()) || t.getArtist().toLowerCase().contains(text.toLowerCase()))
-                {
-                    filteredList.add(t);
-                    Log.i("CHECK","FOUND : " + t);
-                }
+            if(t.getTitle().toLowerCase().contains(text.toLowerCase()) || t.getArtist().toLowerCase().contains(text.toLowerCase()))
+            {
+                filteredList.add(t);
+                Log.i("CHECK","FOUND : " + t);
+            }
         }
 
         // Envoi des musiques trouvées dans l'adapter pour maj graphique

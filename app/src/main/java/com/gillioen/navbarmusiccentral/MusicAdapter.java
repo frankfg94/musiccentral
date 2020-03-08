@@ -52,8 +52,7 @@ public class MusicAdapter  extends RecyclerView.Adapter<MusicHolder> {
         return tracks.size();
     }
 
-    public void filterList(ArrayList<AudioTrack> filteredList)
-    {
+    public void filterList(ArrayList<AudioTrack> filteredList) {
         tracks = filteredList;
         notifyDataSetChanged(); // On affiche les résultats de la recherche immédiatement
     }

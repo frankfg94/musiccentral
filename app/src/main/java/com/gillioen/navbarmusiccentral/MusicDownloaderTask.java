@@ -15,6 +15,7 @@ import java.net.URL;
 public class MusicDownloaderTask extends AsyncTask<String, Integer, String> {
 
     private final String token;
+
     public MusicDownloaderTask(String token)
     {
         this.token = token;

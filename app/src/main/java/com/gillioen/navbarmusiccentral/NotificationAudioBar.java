@@ -20,23 +20,21 @@ public class NotificationAudioBar {
 
     public static Notification notif;
     public static String CHANNEL_ID = "channel1";
-    private static boolean channelSubbed = false;
 
     // Notification commands
     public static final String ACTION_PLAY = "actionplay";
-
 
     public static void createNotification(Context c, AudioTrack track, int playButton, int pos , int size)
     {
         Intent intentPlay = new Intent(c, NotificationActionService.class)
             .setAction(ACTION_PLAY);
+
         PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(c,0,intentPlay,PendingIntent.FLAG_UPDATE_CURRENT);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         {
             MediaSession mediaSessionCompat = new MediaSession(c,"tag");
 
             // Pour le moment on ne gère pas les images
-
             notif = new NotificationCompat.Builder(c,CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_music_note)
                     //.setLargeIcon(icon)

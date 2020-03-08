@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.request.event.DeezerError;
-import com.deezer.sdk.player.AlbumPlayer;
 import com.deezer.sdk.player.PlaylistPlayer;
 import com.deezer.sdk.player.TrackPlayer;
 import com.deezer.sdk.player.exception.TooManyPlayersExceptions;
@@ -16,8 +15,7 @@ public class DeezerPlayer implements  BaseAudioPlayer{
     private Application app;
     private final DeezerConnect api;
     TrackPlayer tp = null;
-    public DeezerPlayer(Application app, DeezerConnect api)
-    {
+    public DeezerPlayer(Application app, DeezerConnect api) {
         this.app = app;
         this.api = api;
     }

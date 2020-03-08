@@ -9,7 +9,6 @@ public class SpotifyPlayer implements BaseAudioPlayer {
 
     public final SpotifyAppRemote remote;
 
-
     public SpotifyPlayer(SpotifyAppRemote remote)
     {
         this.remote =  remote;

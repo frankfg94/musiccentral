@@ -67,6 +67,7 @@ public class DeezerGetPlaylistsTask extends AsyncTask<DeezerConnect,Integer, Lis
                 track.audioPath = String.valueOf(t.getId());
                 track.playListPath =  String.valueOf(pl.getId());
                 track.imgPath = t.getArtist().getSmallImageUrl();
+
                 Log.i("DEEZER",track.toString());
                 tracksForCurPlaylist.add(track);
             }

@@ -5,12 +5,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
@@ -30,7 +28,6 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 public class PlaylistFragment extends Fragment {
@@ -73,7 +70,6 @@ public class PlaylistFragment extends Fragment {
         for(Playlist pl : pLists) {
             CardView cv = generateCardViewFromPlaylist(pl);
             layout.addView(cv);
-            Log.i("CVIEW","Added Cur Child count : " + layout.getChildCount());
         }
     }
     private void LoadPlaylistLocal() {
@@ -143,8 +139,6 @@ public class PlaylistFragment extends Fragment {
 
         TextView tv =  cView.findViewById(R.id.textViewCard);
         tv.setText(pl.name);
-
-
 
         Log.i("CVIEW","Generated Card view for " + pl.name + "'\'" + pl.tracks.size() + " tracks");
         return  cView;

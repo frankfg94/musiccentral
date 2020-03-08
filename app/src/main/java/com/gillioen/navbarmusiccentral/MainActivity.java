@@ -7,9 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -62,7 +59,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -125,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
@@ -167,19 +164,15 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch(item.getItemId())
-        {
-            case R.id.preferences:
-            {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.preferences: {
                 Intent intent = new Intent();
                 intent.setClassName(this, "com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity");
                 startActivity(intent);
                 return true;
             }
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -202,8 +195,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 Permissions.LISTENING_HISTORY,
                 Permissions.OFFLINE_ACCESS};
 
-        DialogListener listener = new DialogListener() {
-
+        DialogListener listener = new DialogListener(){
             public void onComplete(Bundle values) {
                 deezerPlayer = new DeezerPlayer(getApplication(),deezerAPI);
                 Log.i("DEEZER","Connected " + deezerAPI.getAccessToken() + " / " +  deezerAPI.getCurrentUser().getFirstName() + " " + deezerAPI.getCurrentUser().getLastName());
@@ -220,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
             }
         };
-
         deezerAPI.authorize(this, permissions, listener);
         NotificationAudioBar.startAudioBar(this);
     }
@@ -241,8 +232,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
-
-
         ConnectionParams connectionParams =
                 new ConnectionParams.Builder(CLIENT_ID_SPOTIFY)
                         .setRedirectUri(REDIRECT_URI)
@@ -262,7 +251,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 Log.e("MainActivity", throwable.getMessage(), throwable);
             }
         });
-
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -271,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
-
             switch (response.getType()) {
                 // Response was successful and contains auth token
                 case TOKEN:
@@ -293,13 +280,11 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     }
 
     public List<AudioTrack> getAllMusicsURISFromDeezer(String accessToken) throws ExecutionException, InterruptedException, JSONException, IOException, DeezerError {
-
         List<Playlist> pl = new DeezerGetPlaylistsTask().execute(deezerAPI).get();
         List<AudioTrack> tracks = new ArrayList<>();
         allPlaylists.addAll(pl);
         for(Playlist p : pl)
             tracks.addAll(p.tracks);
-
         return tracks;
     }
 
@@ -316,14 +301,14 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             int locationIndex = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
             int dateIndex = songCursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
             do {
-                 Integer dateTaken = songCursor.getInt(dateIndex);
-                    Calendar myCal = Calendar.getInstance();
-                    myCal.setTimeInMillis(dateTaken);
-                    Date creationDate = myCal.getTime();
+                Integer dateTaken = songCursor.getInt(dateIndex);
+                Calendar myCal = Calendar.getInstance();
+                myCal.setTimeInMillis(dateTaken);
+                Date creationDate = myCal.getTime();
 
-                    String curTitle = songCursor.getString(titleIndex);
-                 String curArtist = songCursor.getString(artistIndex);
-                 String curLocation = songCursor.getString(locationIndex);
+                String curTitle = songCursor.getString(titleIndex);
+                String curArtist = songCursor.getString(artistIndex);
+                String curLocation = songCursor.getString(locationIndex);
                 AudioTrack track = new AudioTrack();
                 track.audioPath = curLocation;
                 track.imgPath = null;
@@ -331,10 +316,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 track.artist = curArtist;
                 track.setDate(creationDate);
                 songList.add(track);
-                /*songList.add("Title : " + curTitle
-                        + System.lineSeparator() + curArtist
-                        + System.lineSeparator() + curLocation);
-                 */
             }while(songCursor.moveToNext());
         }
         return songList;
@@ -368,8 +349,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
     }
 
-
-
     public boolean isSpotifyPremium(JSONObject jsonObject)
     {
         try {
@@ -381,6 +360,8 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     }
 
     private ArrayList<AudioTrack> getAllMusicsURISFromSpotify() throws ExecutionException, InterruptedException, JSONException, ParseException {
+
+        //Get the URIs with AsyncTask and JSON Objects
         ArrayList<AudioTrack> spotMusics = new ArrayList<>();
         MusicDownloaderTask downloader = new MusicDownloaderTask(spotifyToken);
         AsyncTask<String,Integer,String> playlists  = downloader.execute("https://api.spotify.com/v1/me/playlists");
@@ -391,9 +372,8 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         JSONArray playListsArray = playListsJson.getJSONArray("items");
         ArrayList<String> spotPlaylistsIDS = new ArrayList<>();
         for( int i = 0 ; i < playListsArray.length(); i++)
-        {
             spotPlaylistsIDS.add(playListsArray.getJSONObject(i).getString("id"));
-        }
+
 
         // ATTENTION IL VA FALLOIR ATTENDRE QU'ON AIT LA LISTE DES PLAYLISTS
 
@@ -426,6 +406,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 JSONArray images = album.getJSONArray("images");
                 JSONObject firstImg = images.getJSONObject(0);
                 String url =   firstImg.getString("url");
+
                 // Pour l'instant que bitmap donc à défaut d'avoir un path, on met une image
                 track.imgPath = url;
                 track.audioPath = curTrackJSON.getString("uri");
@@ -473,7 +454,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     protected void onStart(){
         super.onStart();
     }
-
 
     @Override
     protected void onStop(){

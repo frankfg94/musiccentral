@@ -11,9 +11,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.LinearLayoutCompat;
 
-import com.gillioen.navbarmusiccentral.AudioTrack;
-import com.gillioen.navbarmusiccentral.BaseAudioPlayer;
-import com.gillioen.navbarmusiccentral.R;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
