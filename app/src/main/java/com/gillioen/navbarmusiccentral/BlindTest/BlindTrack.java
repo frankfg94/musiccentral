@@ -1,33 +1,49 @@
 package com.gillioen.navbarmusiccentral.BlindTest;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.fragment.app.Fragment;
+
+import com.gillioen.navbarmusiccentral.ApiType;
 import com.gillioen.navbarmusiccentral.AudioTrack;
 import com.gillioen.navbarmusiccentral.MainActivity;
 import com.gillioen.navbarmusiccentral.R;
+import com.gillioen.navbarmusiccentral.ui.BlindTest.BlindTrackFragment;
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimerTask;
 
 public class BlindTrack extends AudioTrack {
-    public int playDurationSeconds;
     public List<String> possibleAnswers; // The different names that will be displayed on the buttons, excepting the name of the track itself
-    private int playDurSeconds = 4;
-    private int maxAnswersCount = 4;
+    private int playDurSeconds = 4; // The time you have to guess a track
+    private int finishDurSeconds = 5; // The time you have to see the solution before going to the next solution
+    private int maxAnswersCount = 4; // The number of results that can be displayed on screen
+    public OnBlindtrackFinished  blindtrackFinished;
 
-    public BlindTrack(AudioTrack audioTrack, int playDurSeconds, int maxAnswersCount)
+    public void setCustomEventListener(OnBlindtrackFinished eventListener) {
+        blindtrackFinished = eventListener;
+    }
+
+    public BlindTrack(AudioTrack audioTrack, int playDurSeconds, int maxAnswersCount, int finishDurSeconds)
     {
         setTrackData(audioTrack);
         this.playDurSeconds = playDurSeconds;
         this.maxAnswersCount = maxAnswersCount;
+        this.finishDurSeconds = finishDurSeconds;
         if(possibleAnswers == null)
             possibleAnswers = new ArrayList<>();
         possibleAnswers.add(getTitle());
+
+        this.blindtrackFinished = () -> Log.i("BLINDTEST","Finished playing the track " + audioTrack);
     }
 
     private void setTrackData(AudioTrack track)
@@ -42,8 +58,10 @@ public class BlindTrack extends AudioTrack {
         super.title = track.title;
     }
 
-    public void playInFragment(Fragment frag, View root)
+    Drawable background;
+    public void playInFragment(BlindTrackFragment frag, View root)
     {
+        Log.i("BLINDTEST","Starting question for Track " + getTitle());
         View v = root;
         ArrayList<Button> buttons = new ArrayList<>();
         ImageView trackCoverImgView = v.findViewById(R.id.trackImageBlindtest);
@@ -56,42 +74,82 @@ public class BlindTrack extends AudioTrack {
         buttons.add(b2);
         buttons.add(b3);
         buttons.add(b4);
-        for(int i  = 0 ;  i < buttons.size(); i++)
+        background = b1.getBackground();
+
+        for(Button b : buttons)
         {
-            if( i < maxAnswersCount )
-                buttons.get(i).setText(getTitle());
-            else
-                buttons.get(i).setVisibility(View.INVISIBLE);
+            b.setOnClickListener(v1 -> {
+                (frag.getActivity()).runOnUiThread(() -> {
+                    if(b.getText().equals(getTitle()))
+                        b.setBackgroundColor(Color.rgb(0,255,0));
+                    else
+                        b.setBackgroundColor(Color.rgb(255,0,0));
+                });
+            });
         }
+
+            frag.getActivity().runOnUiThread(() -> {
+                for(int i  = 0 ;  i < buttons.size(); i++)
+                {
+                if (possibleAnswers != null && possibleAnswers.size() > 1 && i < maxAnswersCount && i < possibleAnswers.size()) {
+                    buttons.get(i).setText(possibleAnswers.get(i));
+                } else if (i < maxAnswersCount)
+                    buttons.get(i).setText(getTitle());
+                else
+                    buttons.get(i).setVisibility(View.INVISIBLE);
+                }
+                trackCoverImgView.setImageResource(R.drawable.question_mark);
+            });
         ((MainActivity)frag.getActivity()).stopTracks();
         ((MainActivity)frag.getActivity()).playTrack(this);
 
-        trackCoverImgView.setImageResource(R.drawable.question_mark);
 
         // Timer after the track is played
         new java.util.Timer().schedule(new TimerTask(){
             @Override
             public void run() {
+                Log.i("BLINDTEST","Showing the answer for this question");
                 ((MainActivity)frag.getActivity()).stopTracks();
+                frag.getActivity().runOnUiThread(() -> {
+                    // Stuff that updates the UI
+                    textView.setText(getTitle());
 
-                ((MainActivity)frag.getActivity()).runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-
-                        // Stuff that updates the UI
-                        textView.setText(getTitle());
-
-                        // Revealing the image of the track
-                        if(imgPath!=null)
+                    // Revealing the image of the track
+                    if(imgPath!=null)
+                    {
+                        if(getApi() != ApiType.None)
+                        {
                             Picasso.with(frag.getContext())
                                     .load(imgPath)
                                     .fit()
                                     .placeholder(R.drawable.ic_launcher_background)
                                     .into(trackCoverImgView);
+                        }
                         else
-                            trackCoverImgView.setImageResource(R.drawable.ic_music_note);
+                        {
+                            Picasso.with(frag.getContext())
+                                    .load(new File(imgPath))
+                                    .fit()
+                                    .placeholder(R.drawable.ic_launcher_background)
+                                    .into(trackCoverImgView);
+                        }
                     }
+                    else
+                        trackCoverImgView.setImageResource(R.drawable.ic_music_note);
+
+                    new java.util.Timer().schedule(new TimerTask(){
+                        @Override
+                        public void run() {
+                            // We tell the listeners that the track finished playing
+                            (frag.getActivity()).runOnUiThread(() -> {
+                                        for (Button b : buttons)
+                                        {
+                                            b.setBackground(background);
+                                        }
+                                    });
+                            blindtrackFinished.onEvent();
+                        }
+                    },1000*finishDurSeconds,999999999);
                 });
             }
         },1000*playDurSeconds,999999999);
@@ -120,5 +178,7 @@ public class BlindTrack extends AudioTrack {
                 curAnswerCount++;
             }
         }
+        Log.i("BLINDTEST","Assigned "+possibleAnswers.size()+" answers for track"  + getTitle());
+
     }
 }

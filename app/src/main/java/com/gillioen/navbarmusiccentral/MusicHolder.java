@@ -3,6 +3,11 @@ package com.gillioen.navbarmusiccentral;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -13,7 +18,10 @@ import androidx.appcompat.widget.LinearLayoutCompat;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class MusicHolder extends RecyclerView.ViewHolder {
 
@@ -45,19 +53,45 @@ public class MusicHolder extends RecyclerView.ViewHolder {
         this.spotifyPlayer = spotifyPlayer;
     }
 
+
+
+
+
     public void display(AudioTrack track, Context c) {
         currentTrack = track;
         tviewTitle.setText(currentTrack.getTitle());
         tviewAuthor.setText(currentTrack.getArtist());
 
-        if(currentTrack.imgPath!=null)
+        if(currentTrack.imgPath!=null) {
+
+            // Online image fetch
+            if(currentTrack.api != ApiType.None)
+            {
+                Picasso.with(c)
+                        .load(currentTrack.imgPath)
+                        .fit()
+                        .placeholder(R.drawable.ic_launcher_background)
+                        .into(imageView);
+            }
+            // Offline image fetch
+            else
+            {
+                File f = new File(currentTrack.imgPath);
+                Picasso.with(c)
+                        .load(f)
+                        .fit()
+                        .placeholder(R.drawable.ic_launcher_background)
+                        .into(imageView);
+            }
+        }
+        else
+        {
             Picasso.with(c)
-                    .load(currentTrack.imgPath)
+                    .load(R.drawable.ic_launcher_background)
                     .fit()
                     .placeholder(R.drawable.ic_launcher_background)
                     .into(imageView);
-        else
-            imageView.setImageResource(R.drawable.ic_launcher_background);
+        }
 
         if(currentTrack.api == ApiType.Spotify )
             apiIcon.setImageResource(R.drawable.spotify);

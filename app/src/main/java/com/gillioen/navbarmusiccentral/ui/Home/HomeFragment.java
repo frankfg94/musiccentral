@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -18,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.gillioen.navbarmusiccentral.AudioTrack;
 import com.gillioen.navbarmusiccentral.MainActivity;
@@ -30,7 +32,8 @@ import java.util.Comparator;
 public class HomeFragment extends Fragment {
 
     private HomeViewModel playlistViewModel;
-    ArrayList<AudioTrack> ar = null;
+    public ArrayList<AudioTrack> ar = null;
+    private boolean ascendingSort = true;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         playlistViewModel =  ViewModelProviders.of(this).get(HomeViewModel.class);
@@ -44,6 +47,27 @@ public class HomeFragment extends Fragment {
         });
 
         EditText searchBar =  root.findViewById(R.id.search_bar_fragment_home);
+        Spinner sp = root.findViewById(R.id.spinner);
+        Button but = root.findViewById(R.id.sortTracksModeButton);
+        MainActivity act = ((MainActivity)getActivity());
+        but.setOnClickListener(v -> {
+            if(ar == null || ar.size() == 0)
+            {
+                ar = act.musicList;
+                act.musicAdapter.filterList(ar);
+            }
+            if(ascendingSort == true)
+            {
+                but.setText("Croissant");
+                setAscendingSort(false);
+            }
+            else
+            {
+                but.setText("Décroissant");
+                setAscendingSort(true);
+            }
+        });
+
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -61,9 +85,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        MainActivity act = ((MainActivity)getActivity());
 
-        Spinner sp = root.findViewById(R.id.spinner);
         sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -85,6 +107,7 @@ public class HomeFragment extends Fragment {
                     case 3 :
                         Toast.makeText(parent.getContext(), "Tri par Date", Toast.LENGTH_SHORT).show();
                         sortingAlgorithm = new AudioTrackDateComparator();
+                        break;
                 }
                 Collections.sort(ar,sortingAlgorithm);
                 if(act.musicAdapter!=null)
@@ -98,7 +121,6 @@ public class HomeFragment extends Fragment {
 
             }
         });
-
         return root;
     }
 
@@ -124,4 +146,14 @@ public class HomeFragment extends Fragment {
         ma.musicAdapter.filterList(filteredList);
     }
 
+    public void setAscendingSort(boolean ascendingSort) {
+
+        MainActivity ma = ((MainActivity)getActivity());
+            if(ar != null && ar.size() > 0)
+            {
+                Collections.reverse(ar);
+                ma.musicAdapter.filterList(ar);
+                this.ascendingSort = ascendingSort;
+            }
+    }
 }

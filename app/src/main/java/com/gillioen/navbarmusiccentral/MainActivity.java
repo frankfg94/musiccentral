@@ -3,6 +3,7 @@ package com.gillioen.navbarmusiccentral;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -290,8 +291,12 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         return tracks;
     }
 
+    final public static Uri sArtworkUri = Uri
+            .parse("content://media/external/audio/albumart");
     public ArrayList<AudioTrack> getAllMusicsPathsFromPhone()
     {
+
+
         ArrayList<AudioTrack> songList = new ArrayList<>();
         ContentResolver contentResolver = getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -302,6 +307,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             int artistIndex = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int locationIndex = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
             int dateIndex = songCursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
+            int albumIndex = songCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
             do {
                 Integer dateTaken = songCursor.getInt(dateIndex);
                 Calendar myCal = Calendar.getInstance();
@@ -313,7 +319,23 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 String curLocation = songCursor.getString(locationIndex);
                 AudioTrack track = new AudioTrack();
                 track.audioPath = curLocation;
-                track.imgPath = null;
+                int albumId = songCursor.getInt(albumIndex);
+                try {
+                    Cursor cursor = getContentResolver().query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                            new String[] {MediaStore.Audio.Albums._ID, MediaStore.Audio.Albums.ALBUM_ART},
+                            MediaStore.Audio.Albums._ID+ "=?",
+                            new String[] {String.valueOf(albumId)},
+                            null);
+
+                    if (cursor.moveToFirst()) {
+                        String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART));
+                        track.imgPath = path;
+                    }
+                }catch (Exception e)
+                {
+                    Log.i("ERROR",e.getMessage());
+                }
+
                 track.title = curTitle;
                 track.artist = curArtist;
                 track.setDate(creationDate);
@@ -462,10 +484,10 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     @Override
     protected void onStop(){
         super.onStop();
-        if(deezerPlayer.tp!=null)
+        if(deezerPlayer != null && deezerPlayer.tp!=null)
             deezerPlayer.tp.release();
 
-        if(spotifyPlayer.remote != null)
+        if(spotifyPlayer != null && spotifyPlayer.remote != null)
             SpotifyAppRemote.disconnect(((SpotifyPlayer)spotifyPlayer).remote);
     }
 
@@ -523,10 +545,13 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     }
     @Override
     public void onShake() {
-        Random r = new Random();
-        int randomTrack = r.nextInt(musicList.size() - 0 + 1) + 0;
-        AudioTrack random = musicList.get(randomTrack);
-        playTrack(random);
-        Toast.makeText(getApplicationContext(), "Music shuffled!", Toast.LENGTH_SHORT).show();
+        if(musicList != null && musicList.size() > 0)
+        {
+            Random r = new Random();
+            int randomTrack = r.nextInt(musicList.size() - 0 + 1) + 0;
+            AudioTrack random = musicList.get(randomTrack);
+            playTrack(random);
+            Toast.makeText(getApplicationContext(), "Music shuffled!", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_height="match_parent">
 
-        <TextView
+    <TextView
             android:id="@+id/text_home"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -14,13 +14,7 @@
             android:layout_marginEnd="8dp"
             android:textAlignment="center"
             android:textSize="20sp" />
-    <Spinner
-        android:entries="@array/SpinnerSortValues"
-        android:id="@+id/spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
 
-    </Spinner>
     <EditText
         android:id="@+id/search_bar_fragment_home"
         android:hint="Nom d'une musique"
@@ -30,12 +24,35 @@
 
     </EditText>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-></androidx.recyclerview.widget.RecyclerView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/sortTracksModeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Croissant" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:entries="@array/SpinnerSortValues">
+
+        </Spinner>
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"></androidx.recyclerview.widget.RecyclerView>
+
 </androidx.appcompat.widget.LinearLayoutCompat>
