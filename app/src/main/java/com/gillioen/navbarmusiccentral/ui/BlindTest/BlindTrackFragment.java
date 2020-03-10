@@ -34,6 +34,7 @@ public class BlindTrackFragment extends Fragment {
                 .setChoiceCountForEachTrack(4)
                 .build();
 
+        Log.i("BLINDTEST",bt.toString());
         bt.startGame(this,root);
         //bt.getBlindTracks().get(0).playInFragment(this,root);
         //new BlindTrack(((MainActivity)getActivity()).musicList.get(3),10,4).playInFragment(this,root);

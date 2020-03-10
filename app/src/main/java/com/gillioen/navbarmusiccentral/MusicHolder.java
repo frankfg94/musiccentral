@@ -1,27 +1,16 @@
 package com.gillioen.navbarmusiccentral;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.LinearLayoutCompat;
-
+import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
-
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class MusicHolder extends RecyclerView.ViewHolder {
 

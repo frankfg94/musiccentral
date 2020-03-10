@@ -320,6 +320,8 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 AudioTrack track = new AudioTrack();
                 track.audioPath = curLocation;
                 int albumId = songCursor.getInt(albumIndex);
+
+                // Getting the album cover image
                 try {
                     Cursor cursor = getContentResolver().query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                             new String[] {MediaStore.Audio.Albums._ID, MediaStore.Audio.Albums.ALBUM_ART},
