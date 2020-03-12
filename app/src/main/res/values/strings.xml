@@ -20,7 +20,7 @@
         <item>Api</item>
         <item>Date</item>
     </string-array>
-    <array name="key"> <!-- Weak=5, Medium=10, Strong=20 -->
+    <array name="key">
         <item>"Weak"
         </item>
         <item>"Medium"
@@ -29,11 +29,11 @@
         </item>
     </array>
     <array name="value">
-        <item>"5"
+        <item>"3"
         </item>
-        <item>"10"
+        <item>"8"
         </item>
-        <item>"20"
+        <item>"15"
         </item>
     </array>
 </resources>

@@ -612,7 +612,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             Random r = new Random();
-            int randomTrack = r.nextInt(musicList.size() - 0 + 1) + 0;
+            int randomTrack = r.nextInt(musicList.size() - 1);
             AudioTrack random = musicList.get(randomTrack);
             playTrack(random);
             if(toastShake == null){
