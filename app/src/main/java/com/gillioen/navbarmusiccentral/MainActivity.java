@@ -407,8 +407,12 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         }
         //adapter = new AudioTrackListAdapter(this,R.layout.recycler_audiotrack_row,musicList);
         musicAdapter = new MusicAdapter(musicList, localPlayer, currentPlayer, deezerPlayer, isSpotifyPremium, spotifyPlayer, this);
-        recycler.setAdapter(musicAdapter);
+        if(recycler != null)
+        {
+            recycler.setAdapter(musicAdapter);
         recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        }
+
     }
 
     public boolean isSpotifyPremium(JSONObject jsonObject)
