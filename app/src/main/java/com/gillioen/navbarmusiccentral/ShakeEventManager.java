@@ -44,12 +44,12 @@ public class ShakeEventManager implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         float maxAcc = calcMaxAcceleration(sensorEvent);
-        Log.d("SwA", "Max Acc ["+maxAcc+"]");
+        //Log.d("SwA", "Max Acc ["+maxAcc+"]");
         if (maxAcc >= MOV_THRESHOLD) {
             if (counter == 0) {
                 counter++;
                 firstMovTime = System.currentTimeMillis();
-                Log.d("SwA", "First mov..");
+                //Log.d("SwA", "First mov..");
             } else {
                 long now = System.currentTimeMillis();
                 if ((now - firstMovTime) < SHAKE_WINDOW_TIME_INTERVAL)
@@ -59,7 +59,7 @@ public class ShakeEventManager implements SensorEventListener {
                     counter++;
                     return;
                 }
-                Log.d("SwA", "Mov counter ["+counter+"]");
+                //Log.d("SwA", "Mov counter ["+counter+"]");
 
                 if (counter >= MOV_COUNTS)
                     if (listener != null)
@@ -94,7 +94,7 @@ public class ShakeEventManager implements SensorEventListener {
 
 
     private void resetAllData() {
-        Log.d("SwA", "Reset all data");
+        //Log.d("SwA", "Reset all data");
         counter = 0;
         firstMovTime = System.currentTimeMillis();
     }

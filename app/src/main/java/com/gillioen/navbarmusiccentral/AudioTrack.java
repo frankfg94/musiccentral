@@ -85,6 +85,20 @@ public class AudioTrack implements Serializable
     public void setDate(Date date) {
         this.date = date;
     }
+
+    // The path of an audiotrack is its identifier
+    @Override
+    public boolean equals(Object o)
+    {
+        if( o == this)
+            return true;
+
+        if(!(o instanceof AudioTrack))
+            return false;
+
+        AudioTrack t = (AudioTrack)o;
+        return getAudioPath().equals(t.getAudioPath());
+    }
 }
 
 

@@ -3,54 +3,45 @@ package com.gillioen.navbarmusiccentral;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import com.deezer.sdk.model.Permissions;
-import com.deezer.sdk.network.connect.DeezerConnect;
-import com.deezer.sdk.network.connect.event.DialogListener;
-import com.deezer.sdk.network.request.event.DeezerError;
-import com.gillioen.navbarmusiccentral.BlindTest.BlindTrack;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.deezer.sdk.model.Permissions;
+import com.deezer.sdk.network.connect.DeezerConnect;
+import com.deezer.sdk.network.connect.event.DialogListener;
+import com.deezer.sdk.network.request.event.DeezerError;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-
-import androidx.drawerlayout.widget.DrawerLayout;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.Menu;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -90,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     public ArrayList<Playlist> allPlaylists = new ArrayList<>();
     public ArrayList<AudioTrack> musicList = new ArrayList<>();
+    protected static int curTrackIndex = -1;
 
     // ReyclerView
     RecyclerView recycler = null;
@@ -108,6 +100,49 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     private AppBarConfiguration mAppBarConfiguration;
 
+
+    public class AudiobarBroadcast extends BroadcastReceiver {
+
+
+        public AudiobarBroadcast(){ }
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i("AUDIOBAR", "Detected click from audiobar, actual track is  " + curTrackIndex);
+            switch (intent.getAction()) {
+                case NotificationGenerator.NOTIFY_PLAY:
+                    Toast.makeText(context, "Musique en pause ou continuée", Toast.LENGTH_LONG).show();
+                    Log.i("AUDIOBAR", "NOTIFY_PLAY");
+                    stopTracks();
+                    break;
+                case NotificationGenerator.NOTIFY_NEXT:
+                    Toast.makeText(context, "Musique suivante", Toast.LENGTH_LONG).show();
+                    Log.i("AUDIOBAR", "NOTIFY_NEXT");
+                    if(curTrackIndex+1 < musicList.size())
+                    {
+                        curTrackIndex++;
+                        playTrack(musicList.get(curTrackIndex));
+                    }
+                    else
+                        Toast.makeText(context, "Fin de la liste", Toast.LENGTH_LONG).show();
+                    break;
+                case NotificationGenerator.NOTIFY_PREVIOUS:
+                    Toast.makeText(context, "NOTIFY_PREV", Toast.LENGTH_LONG).show();
+                    if(curTrackIndex-1 > 0)
+                    {
+                        curTrackIndex--;
+                        playTrack(musicList.get(curTrackIndex));
+                    }
+                    else
+                        Toast.makeText(context, "Début de la liste", Toast.LENGTH_LONG).show();
+                    Log.i("AUDIOBAR", "NOTIFY_PREV");
+                    break;
+            }
+
+        }
+    }
+
+    AudiobarBroadcast broadcast;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,6 +150,9 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
+
+
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -216,15 +254,13 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             }
         };
         deezerAPI.authorize(this, permissions, listener);
-        NotificationAudioBar.startAudioBar(this);
     }
 
 
     // L'application doit être enregistrée sur le site de spotify avec son nom de package, son hash et la redirect uri doit être whitelistée
     void SpotifyAuthenticateFull(String clientId,String redirectUri)
     {
-        AuthenticationRequest.Builder builder =
-                new AuthenticationRequest.Builder(clientId, AuthenticationResponse.Type.TOKEN, redirectUri);
+        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(clientId, AuthenticationResponse.Type.TOKEN, redirectUri);
 
         // On active toutes les autorisations spotify possibles
         builder.setScopes(new String[]{"streaming","ugc-image-upload","user-read-playback-state","user-modify-playback-state",
@@ -369,12 +405,10 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        //adapter = new AudioTrackListAdapter(this,R.layout.activity_row,musicList);
+        //adapter = new AudioTrackListAdapter(this,R.layout.recycler_audiotrack_row,musicList);
         musicAdapter = new MusicAdapter(musicList, localPlayer, currentPlayer, deezerPlayer, isSpotifyPremium, spotifyPlayer, this);
         recycler.setAdapter(musicAdapter);
         recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-
-
     }
 
     public boolean isSpotifyPremium(JSONObject jsonObject)
@@ -480,7 +514,15 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     @Override
     protected void onStart(){
+
         super.onStart();
+        IntentFilter filter1 = new IntentFilter();
+        filter1.addAction(NotificationGenerator.NOTIFY_PLAY);
+        filter1.addAction(NotificationGenerator.NOTIFY_NEXT);
+        filter1.addAction(NotificationGenerator.NOTIFY_PREVIOUS);
+        broadcast = new AudiobarBroadcast();
+        registerReceiver(broadcast,filter1);
+        Log.i("AUDIOBAR","Broadcast is now enabled");
     }
 
     @Override
@@ -490,25 +532,11 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             deezerPlayer.tp.release();
 
         if(spotifyPlayer != null && spotifyPlayer.remote != null)
-            SpotifyAppRemote.disconnect(((SpotifyPlayer)spotifyPlayer).remote);
+            SpotifyAppRemote.disconnect(spotifyPlayer.remote);
+        if(broadcast != null)
+        unregisterReceiver(broadcast);
     }
 
-    // Audio notification bar
-    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action  = intent.getExtras().getString("actionname");
-            switch (action)
-            {
-                case NotificationAudioBar.ACTION_PLAY:
-                    try {
-                        currentPlayer.Play("");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-            }
-        }
-    };
 
     public void stopTracks()
     {
@@ -519,10 +547,23 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     public void playTrack(AudioTrack track)
     {
-        localPlayer.Stop();
-        spotifyPlayer.Stop();
+        try {
+            curTrackIndex = musicList.indexOf(track);
+        }
+        catch (Exception ex)
+        {
+            Log.i("AUDIO",ex.getMessage() + " \n" + ex.getStackTrace());
+            curTrackIndex = -1;
+        }
+
+        Log.i("AUDIO","Index is now " + curTrackIndex);
+        if(localPlayer != null)
+            localPlayer.Stop();
+        if(spotifyPlayer != null)
+            spotifyPlayer.Stop();
         if(deezerPlayer != null)
             deezerPlayer.Stop();
+        NotificationGenerator.showAudioPlayerNotification(getApplicationContext(),track);
         try {
             switch (track.api)
             {
@@ -540,8 +581,8 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                     deezerPlayer.Play(track.audioPath);
                     break;
             }
-            // NotificationAudioBar.createNotification(,track,R.drawable.ic_music_note,1,1);
         } catch (IOException e) {
+            Log.i("EXCEPTION",e.getMessage());
             e.printStackTrace();
         }
     }

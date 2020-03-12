@@ -15,6 +15,7 @@ public class DeezerPlayer implements  BaseAudioPlayer{
     private Application app;
     private final DeezerConnect api;
     TrackPlayer tp = null;
+    PlaylistPlayer pp = null;
     public DeezerPlayer(Application app, DeezerConnect api) {
         this.app = app;
         this.api = api;
@@ -41,11 +42,14 @@ public class DeezerPlayer implements  BaseAudioPlayer{
     public void Stop() {
         if(tp!=null)
         tp.stop();
+
+        if(pp != null)
+            pp.stop();
     }
 
     public void PlayPlaylist(String audioPath) {
         try {
-            PlaylistPlayer pp = new PlaylistPlayer(app,api, NetworkStateCheckerFactory.wifiAndMobile());
+            pp = new PlaylistPlayer(app,api, NetworkStateCheckerFactory.wifiAndMobile());
             pp.playPlaylist(Long.parseLong(audioPath));
         } catch (TooManyPlayersExceptions tooManyPlayersExceptions) {
             tooManyPlayersExceptions.printStackTrace();

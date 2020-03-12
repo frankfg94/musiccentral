@@ -123,6 +123,7 @@ public class PlaylistFragment extends Fragment {
                         case Spotify:
                             act.deezerPlayer.Stop();
                             act.localPlayer.Stop();
+                            act.spotifyPlayer.Stop();
                             act.spotifyPlayer.Play(pl.url);
                             break;
                         case None:

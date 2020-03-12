@@ -5,22 +5,14 @@
     android:orientation="vertical"
     android:layout_height="match_parent">
 
-    <TextView
-            android:id="@+id/text_home"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:textAlignment="center"
-            android:textSize="20sp" />
-
+    <!-- l'attribut background ici permet d'utiliser le ripple effect  -->
     <EditText
         android:id="@+id/search_bar_fragment_home"
         android:hint="Nom d'une musique"
         android:padding="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        >
 
     </EditText>
 
@@ -47,12 +39,14 @@
         </Spinner>
     </LinearLayout>
 
+    <!-- Affiche la liste des musiques-->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"></androidx.recyclerview.widget.RecyclerView>
+        android:layout_marginEnd="8dp"
+        ></androidx.recyclerview.widget.RecyclerView>
 
 </androidx.appcompat.widget.LinearLayoutCompat>

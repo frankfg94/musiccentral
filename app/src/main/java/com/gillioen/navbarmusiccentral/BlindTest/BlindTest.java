@@ -6,6 +6,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.gillioen.navbarmusiccentral.AudioTrack;
+import com.gillioen.navbarmusiccentral.NotificationGenerator;
 import com.gillioen.navbarmusiccentral.R;
 import com.gillioen.navbarmusiccentral.ui.BlindTest.BlindTrackFragment;
 
