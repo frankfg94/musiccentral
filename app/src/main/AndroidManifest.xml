@@ -50,6 +50,17 @@
             android:label="Preferences">
         </activity>
 
+        <!--
+        <receiver android:name=".MainActivity$AudiobarBroadcast">
+            <intent-filter>
+                <action android:name="com.gillioen.navbarmusiccentral.prev"/>
+                <action android:name="com.gillioen.navbarmusiccentral.next"/>
+                <action android:name="com.gillioen.navbarmusiccentral.play"/>
+                <action android:name="com.gillioen.navbarmusiccentral.pause"/>
+            </intent-filter>
+        </receiver>
+        -->
+
     </application>
 
 </manifest>

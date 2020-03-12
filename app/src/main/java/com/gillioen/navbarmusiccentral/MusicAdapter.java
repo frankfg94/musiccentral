@@ -35,7 +35,7 @@ public class MusicAdapter  extends RecyclerView.Adapter<MusicHolder> {
     @NonNull
     @Override
     public MusicHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_row, parent,false);
+        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_audiotrack_row, parent,false);
         final MusicHolder musicHolder = new MusicHolder(layoutView, localPlayer, currentPlayer, deezerPlayer, isSpotifyPremium, spotifyPlayer, c);
         return musicHolder;
     }
@@ -43,7 +43,7 @@ public class MusicAdapter  extends RecyclerView.Adapter<MusicHolder> {
     @Override
     public void onBindViewHolder(@NonNull MusicHolder holder, int position) {
         AudioTrack myTrack = tracks.get(position);
-        holder.display(myTrack, c);
+        holder.display(myTrack, c, position);
     }
 
     @Override

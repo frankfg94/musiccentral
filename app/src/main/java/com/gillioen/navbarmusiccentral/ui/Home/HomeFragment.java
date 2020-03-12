@@ -38,13 +38,6 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         playlistViewModel =  ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-        final TextView textView = root.findViewById(R.id.text_home);
-        playlistViewModel.getText().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
 
         EditText searchBar =  root.findViewById(R.id.search_bar_fragment_home);
         Spinner sp = root.findViewById(R.id.spinner);
@@ -143,7 +136,8 @@ public class HomeFragment extends Fragment {
         }
 
         // Envoi des musiques trouvées dans l'adapter pour maj graphique
-        ma.musicAdapter.filterList(filteredList);
+        if(ma.musicAdapter != null)
+            ma.musicAdapter.filterList(filteredList);
     }
 
     public void setAscendingSort(boolean ascendingSort) {

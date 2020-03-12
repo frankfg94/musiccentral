@@ -10,31 +10,26 @@
         android:name="com.gillioen.navbarmusiccentral.ui.Home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
-
     <fragment
         android:id="@+id/nav_gallery"
         android:name="com.gillioen.navbarmusiccentral.ui.playlists.PlaylistFragment"
         android:label="@string/menu_playlists"
         tools:layout="@layout/fragment_playlists" />
-
     <fragment
         android:id="@+id/nav_blindtrack"
         android:name="com.gillioen.navbarmusiccentral.ui.BlindTest.BlindTrackFragment"
         android:label="@string/menu_blindtest"
         tools:layout="@layout/fragment_blindtrack"/>
-
     <fragment
         android:id="@+id/nav_tools"
         android:name="com.gillioen.navbarmusiccentral.ui.tools.ToolsFragment"
         android:label="@string/menu_tools"
         tools:layout="@layout/fragment_tools" />
-
     <fragment
         android:id="@+id/nav_share"
         android:name="com.gillioen.navbarmusiccentral.ui.share.ShareFragment"
         android:label="@string/menu_share"
         tools:layout="@layout/fragment_share" />
-
     <fragment
         android:id="@+id/nav_send"
         android:name="com.gillioen.navbarmusiccentral.ui.send.SendFragment"

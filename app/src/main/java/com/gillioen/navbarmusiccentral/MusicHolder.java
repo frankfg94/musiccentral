@@ -1,27 +1,16 @@
 package com.gillioen.navbarmusiccentral;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.LinearLayoutCompat;
-
+import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
-
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class MusicHolder extends RecyclerView.ViewHolder {
 
@@ -53,14 +42,12 @@ public class MusicHolder extends RecyclerView.ViewHolder {
         this.spotifyPlayer = spotifyPlayer;
     }
 
-
-
-
-
-    public void display(AudioTrack track, Context c) {
+    public void display(AudioTrack track, Context c, int pos) {
         currentTrack = track;
         tviewTitle.setText(currentTrack.getTitle());
         tviewAuthor.setText(currentTrack.getArtist());
+
+
 
         if(currentTrack.imgPath!=null) {
 
@@ -70,7 +57,7 @@ public class MusicHolder extends RecyclerView.ViewHolder {
                 Picasso.with(c)
                         .load(currentTrack.imgPath)
                         .fit()
-                        .placeholder(R.drawable.ic_launcher_background)
+                        .placeholder(R.drawable.ic_action_audiotrack)
                         .into(imageView);
             }
             // Offline image fetch
@@ -80,16 +67,16 @@ public class MusicHolder extends RecyclerView.ViewHolder {
                 Picasso.with(c)
                         .load(f)
                         .fit()
-                        .placeholder(R.drawable.ic_launcher_background)
+                        .placeholder(R.drawable.ic_action_audiotrack)
                         .into(imageView);
             }
         }
         else
         {
             Picasso.with(c)
-                    .load(R.drawable.ic_launcher_background)
+                    .load(R.drawable.ic_action_audiotrack)
                     .fit()
-                    .placeholder(R.drawable.ic_launcher_background)
+                    .placeholder(R.drawable.ic_action_audiotrack)
                     .into(imageView);
         }
 
@@ -100,38 +87,45 @@ public class MusicHolder extends RecyclerView.ViewHolder {
         else
             apiIcon.setImageResource(0);
 
-        myElement.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                localPlayer.Stop();
-                spotifyPlayer.Stop();
-                if(deezerPlayer != null)
-                    deezerPlayer.Stop();
-                try {
-                    switch (currentTrack.api)
-                    {
-                        case None:
-                            currentPlayer = localPlayer;
-                            localPlayer.Play(currentTrack.audioPath);
-                            Log.i("Play Spot", "YES");
-                            break;
-                        case Spotify:
-                            if(isSpotifyPremium)
-                                spotifyPlayer.Play(currentTrack.audioPath);
-                            else
-                                spotifyPlayer.Play("spotify:playlist:"+currentTrack.playListPath);
-                            break;
-                        case Deezer:
-                            deezerPlayer.Play(currentTrack.audioPath);
-                            break;
-                    }
+        myElement.setOnClickListener(v -> {
 
-                    // NotificationAudioBar.createNotification(,track,R.drawable.ic_music_note,1,1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            try {
+                MainActivity.curTrackIndex = pos;
+            }
+            catch (Exception ex)
+            {
+                Log.i("AUDIO",ex.getMessage() + " \n" + ex.getStackTrace());
+                MainActivity.curTrackIndex = -1;
             }
 
+            if(localPlayer != null)
+                localPlayer.Stop();
+            if(spotifyPlayer != null)
+                spotifyPlayer.Stop();
+            if(deezerPlayer != null)
+                deezerPlayer.Stop();
+            NotificationGenerator.showAudioPlayerNotification(c,track);
+            try {
+                switch (track.api)
+                {
+                    case None:
+                        currentPlayer = localPlayer;
+                        localPlayer.Play(track.audioPath);
+                        break;
+                    case Spotify:
+                        if(isSpotifyPremium)
+                            spotifyPlayer.Play(track.audioPath);
+                        else
+                            spotifyPlayer.Play("spotify:playlist:"+track.playListPath);
+                        break;
+                    case Deezer:
+                        deezerPlayer.Play(track.audioPath);
+                        break;
+                }
+            } catch (IOException e) {
+                Log.i("EXCEPTION",e.getMessage());
+                e.printStackTrace();
+            }
         });
     }
 }

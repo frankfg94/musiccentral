@@ -13,12 +13,18 @@
         >
             <TextView
                 android:text="Guess this track"
-                android:id="@+id/trackTitleBlindTest"
+                android:id="@+id/trackTitleBlindText"
                 android:textSize="24sp"
                 android:textColor="#000"
                 android:textAlignment="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
+
+        <ProgressBar
+            android:id="@+id/progressBarBlindTrack"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <ImageView
             android:maxHeight="300dp"

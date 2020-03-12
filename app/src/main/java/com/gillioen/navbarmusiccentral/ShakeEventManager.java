@@ -108,7 +108,7 @@ public class ShakeEventManager implements SensorEventListener {
 
 
     private void resetAllData() {
-        Log.d("SwA", "Reset all data");
+        //Log.d("SwA", "Reset all data");
         counter = 0;
         firstMovTime = System.currentTimeMillis();
     }

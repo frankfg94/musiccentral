@@ -2,9 +2,12 @@ package com.gillioen.navbarmusiccentral.BlindTest;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.gillioen.navbarmusiccentral.AudioTrack;
+import com.gillioen.navbarmusiccentral.NotificationGenerator;
+import com.gillioen.navbarmusiccentral.R;
 import com.gillioen.navbarmusiccentral.ui.BlindTest.BlindTrackFragment;
 
 import java.util.ArrayList;
@@ -24,6 +27,7 @@ public class BlindTest {
     private List<BlindTrack> blindTracks = new ArrayList<>(); // Audiotracks that are configured for a blindtest game
     private List<String> assignedAnswers = new ArrayList<>();
     private Date createdDate;
+    ProgressBar bar;
 
     BlindTest(int gameTrackCount, String title, int trackPlayDurationSec, int choiceCountForEachTrack, List<AudioTrack> tracks) {
         this.gameTrackCount = gameTrackCount;
@@ -42,28 +46,40 @@ public class BlindTest {
 
     private void assignBlindTracks(List<AudioTrack> tracks)
     {
-        List<AudioTrack> copy = new ArrayList<>();
-        for(AudioTrack t : tracks)
-            copy.add(t);
-
         getBlindTracks().clear();
-        for(int i = 0; i < getGameTrackCount(); i++)
+        List<BlindTrack> fullSongList = new ArrayList<>();
+
+        for(int i = 0 ; i < tracks.size(); i++)
         {
-            Log.i("BLINDTEST","Assigning track numbesr : " + i);
-            getBlindTracks().add(new BlindTrack(copy.get(i),getTrackPlayDurationSec(), choiceCountForEachTrack,finishWaitTime));
+            BlindTrack btrack = new BlindTrack(tracks.get(i),getTrackPlayDurationSec(), choiceCountForEachTrack,finishWaitTime);
+            fullSongList.add(btrack);
         }
 
-        for(BlindTrack track : getBlindTracks())
-           track.assignAnswers(this);
+        Collections.shuffle(fullSongList);
+
+        for(int i = 0; i < tracks.size(); i++)
+        {
+            Log.i("BLINDTEST","Assigning track number : " + i);
+            if( i < getGameTrackCount())
+            {
+                blindTracks.add(fullSongList.get(i));
+            }
+        }
+
+        for(BlindTrack track : blindTracks)
+           track.assignAnswers(this,fullSongList);
     }
     public void startGame(BlindTrackFragment blindTrackFragment, View root){
         int i = 0;
         Log.i("BLINDTEST","Let the blindtest BEGIN");
         Log.i("BLINDTEST",toString());
+        bar = root.findViewById(R.id.progressBarBlindTrack);
+        bar.setMax(getGameTrackCount());
         startGameAtTrackNumber(blindTrackFragment,root,i);
     }
 
     private  void startGameAtTrackNumber(BlindTrackFragment blindTrackFragment, View root, int i){
+        bar.setProgress(i);
         List<BlindTrack> tracks = getBlindTracks();
         if(i < tracks.size() && i < gameTrackCount)
         {
@@ -92,10 +108,6 @@ public class BlindTest {
         return gameTrackCount;
     }
 
-    public void setGameTrackCount(int gameTrackCount) {
-        this.gameTrackCount = gameTrackCount;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -122,10 +134,6 @@ public class BlindTest {
 
     public List<BlindTrack> getBlindTracks() {
         return blindTracks;
-    }
-
-    public void setBlindTracks(List<BlindTrack> blindTracks) {
-        this.blindTracks = blindTracks;
     }
 
     public List<String> getAssignedAnswers() {
