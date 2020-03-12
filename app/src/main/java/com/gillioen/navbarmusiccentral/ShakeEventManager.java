@@ -1,10 +1,12 @@
 package com.gillioen.navbarmusiccentral;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class ShakeEventManager implements SensorEventListener {
@@ -13,7 +15,7 @@ public class ShakeEventManager implements SensorEventListener {
     private Sensor s;
 
     private static final int MOV_COUNTS = 2;
-    private static final int MOV_THRESHOLD = 8;
+    private static int mov_threshold = 8;
     private static final float ALPHA = 0.8F;
     private static final int SHAKE_WINDOW_TIME_INTERVAL = 500; // milliseconds
 
@@ -23,6 +25,7 @@ public class ShakeEventManager implements SensorEventListener {
     private int counter;
     private long firstMovTime;
     private ShakeListener listener;
+    private Context ctx;
 
     public ShakeEventManager() {
     }
@@ -34,6 +37,7 @@ public class ShakeEventManager implements SensorEventListener {
     public void init(Context ctx) {
         sManager = (SensorManager)  ctx.getSystemService(Context.SENSOR_SERVICE);
         s = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        this.ctx = ctx;
         register();
     }
 
@@ -41,29 +45,39 @@ public class ShakeEventManager implements SensorEventListener {
         sManager.registerListener(this, s, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+
+    /*public String getShakeValues() {
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(
+                        ctx);
+        return prefs.getString("shake","");
+    } */
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        float maxAcc = calcMaxAcceleration(sensorEvent);
-        //Log.d("SwA", "Max Acc ["+maxAcc+"]");
-        if (maxAcc >= MOV_THRESHOLD) {
-            if (counter == 0) {
-                counter++;
-                firstMovTime = System.currentTimeMillis();
-                //Log.d("SwA", "First mov..");
-            } else {
-                long now = System.currentTimeMillis();
-                if ((now - firstMovTime) < SHAKE_WINDOW_TIME_INTERVAL)
-                    counter++;
-                else {
-                    resetAllData();
-                    counter++;
-                    return;
-                }
-                //Log.d("SwA", "Mov counter ["+counter+"]");
 
-                if (counter >= MOV_COUNTS)
-                    if (listener != null)
-                        listener.onShake();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.ctx);
+        if(prefs.getBoolean("ShufflePreferences", false)) {
+            mov_threshold = Integer.parseInt(prefs.getString("shake", ""));
+            float maxAcc = calcMaxAcceleration(sensorEvent);
+            if (maxAcc >= mov_threshold) {
+                if (counter == 0) {
+                    counter++;
+                    firstMovTime = System.currentTimeMillis();
+                } else {
+                    long now = System.currentTimeMillis();
+                    if ((now - firstMovTime) < SHAKE_WINDOW_TIME_INTERVAL)
+                        counter++;
+                    else {
+                        resetAllData();
+                        counter++;
+                        return;
+                    }
+                    Log.d("SwA", "Mov counter [" + counter + "]");
+
+                    if (counter >= MOV_COUNTS)
+                        if (listener != null)
+                            listener.onShake();
+                }
             }
         }
 

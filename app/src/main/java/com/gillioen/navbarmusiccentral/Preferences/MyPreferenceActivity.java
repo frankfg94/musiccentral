@@ -1,23 +1,28 @@
 package com.gillioen.navbarmusiccentral.Preferences;
 
 
-import android.preference.PreferenceActivity;
+import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.gillioen.navbarmusiccentral.R;
 
-import java.util.List;
 
-public class MyPreferenceActivity extends PreferenceActivity {
-
-    @Override
-    public void onBuildHeaders(List<Header> target)
-    {
-        loadHeadersFromResource(R.xml.headers_preference, target);
-    }
+public class MyPreferenceActivity extends AppCompatActivity {
 
     @Override
-    protected boolean isValidFragment(String fragmentName)
-    {
-        return MyPreferenceFragment.class.getName().equals(fragmentName);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_settings);
+
+        if(findViewById(R.id.fragment_container) != null) {
+            if(savedInstanceState != null) {
+                return;
+            }
+            getFragmentManager().beginTransaction().add(R.id.fragment_container, new MyPreferenceFragment()).commit();
+        }
+
     }
+
 }
