@@ -231,13 +231,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     //On ramène les préférences à l'activité
 
-    public String getShakeValues() {
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(
-                        getApplicationContext());
-        return prefs.getString("shake","");
-    }
-
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -611,6 +604,8 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             e.printStackTrace();
         }
     }
+
+    Toast toastShake;
     @Override
     public void onShake() {
         if(musicList != null && musicList.size() > 0)
@@ -620,7 +615,12 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             int randomTrack = r.nextInt(musicList.size() - 0 + 1) + 0;
             AudioTrack random = musicList.get(randomTrack);
             playTrack(random);
-            Toast.makeText(getApplicationContext(), "Music shuffled! (" + prefs.getString("shake", "") + ")" , Toast.LENGTH_SHORT).show();
+            if(toastShake == null){
+                toastShake = new Toast(getApplicationContext());
+            }
+            toastShake.cancel();
+            toastShake.makeText(getApplicationContext(), String.format("Musique : (%s)  (%s)",random.getTitle(), prefs.getString("shake", "10")), Toast.LENGTH_SHORT).show();
+
         }
     }
 }

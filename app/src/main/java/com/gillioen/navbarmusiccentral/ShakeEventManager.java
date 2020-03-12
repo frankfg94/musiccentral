@@ -57,7 +57,7 @@ public class ShakeEventManager implements SensorEventListener {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.ctx);
         if(prefs.getBoolean("ShufflePreferences", false)) {
-            mov_threshold = Integer.parseInt(prefs.getString("shake", ""));
+            mov_threshold = Integer.parseInt(prefs.getString("shake", "10"));
             float maxAcc = calcMaxAcceleration(sensorEvent);
             if (maxAcc >= mov_threshold) {
                 if (counter == 0) {
@@ -72,7 +72,7 @@ public class ShakeEventManager implements SensorEventListener {
                         counter++;
                         return;
                     }
-                    Log.d("SwA", "Mov counter [" + counter + "]");
+                    //Log.d("SwA", "Mov counter [" + counter + "]");
 
                     if (counter >= MOV_COUNTS)
                         if (listener != null)

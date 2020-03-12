@@ -48,7 +48,6 @@ public class MusicAdapter  extends RecyclerView.Adapter<MusicHolder> {
 
     @Override
     public int getItemCount() {
-        Log.i("size", Integer.toString(tracks.size()));
         return tracks.size();
     }
 
