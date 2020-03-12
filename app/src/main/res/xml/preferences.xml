@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <PreferenceCategory android:title="@string/action_settings">
+        <CheckBoxPreference
+            android:icon="@drawable/ic_shuffle"
+            android:key="ShufflePreferences"
+            android:summary="Enable / Disable Shaking to shuffle"
+            android:title="Shake to shuffle" />
+
+        <ListPreference android:title="Strength of the shake"
+            android:key="shake"
+            android:entries="@array/key"
+            android:entryValues="@array/value"
+            android:dialogTitle="Select the strength of the shaking to shuffle"
+            android:persistent="true"
+            android:dependency="ShufflePreferences">
+        </ListPreference>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

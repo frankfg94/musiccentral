@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.hardware.SensorManager;
@@ -17,9 +18,11 @@ import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.connect.event.DialogListener;
 import com.deezer.sdk.network.request.event.DeezerError;
 import com.gillioen.navbarmusiccentral.BlindTest.BlindTrack;
+import com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
@@ -166,17 +169,26 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         return true;
     }
 
+    /** Preferences management **/
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.preferences: {
-                Intent intent = new Intent();
-                intent.setClassName(this, "com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity");
-                startActivity(intent);
+                Intent intentPref = new Intent(getApplicationContext(), MyPreferenceActivity.class);
+                startActivity(intentPref);
                 return true;
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //On ramène les préférences à l'activité
+
+    public String getShakeValues() {
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(
+                        getApplicationContext());
+        return prefs.getString("shake","");
     }
 
     @Override
@@ -547,11 +559,12 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     public void onShake() {
         if(musicList != null && musicList.size() > 0)
         {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             Random r = new Random();
             int randomTrack = r.nextInt(musicList.size() - 0 + 1) + 0;
             AudioTrack random = musicList.get(randomTrack);
             playTrack(random);
-            Toast.makeText(getApplicationContext(), "Music shuffled!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Music shuffled! (" + prefs.getString("shake", "") + ")" , Toast.LENGTH_SHORT).show();
         }
     }
 }
