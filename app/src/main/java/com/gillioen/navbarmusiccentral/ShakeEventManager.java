@@ -17,7 +17,7 @@ public class ShakeEventManager implements SensorEventListener {
     private static final int MOV_COUNTS = 2;
     private static int mov_threshold = 8;
     private static final float ALPHA = 0.8F;
-    private static final int SHAKE_WINDOW_TIME_INTERVAL = 100; // milliseconds
+    private static final int SHAKE_WINDOW_TIME_INTERVAL = 60; // milliseconds
 
     // Gravity force on x,y,z axis
     private float gravity[] = new float[3];

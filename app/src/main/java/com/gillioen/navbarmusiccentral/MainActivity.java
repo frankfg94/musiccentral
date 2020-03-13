@@ -1,12 +1,14 @@
 package com.gillioen.navbarmusiccentral;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.hardware.SensorManager;
@@ -20,9 +22,12 @@ import com.deezer.sdk.network.connect.event.DialogListener;
 import com.deezer.sdk.network.request.event.DeezerError;
 import com.gillioen.navbarmusiccentral.BlindTest.BlindTrack;
 import com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity;
+import com.gillioen.navbarmusiccentral.ui.Home.HomeFragment;
+import com.gillioen.navbarmusiccentral.ui.Home.RecyclerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -30,11 +35,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -69,7 +78,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity implements ShakeEventManager.ShakeListener {
+public class MainActivity extends AppCompatActivity implements ShakeEventManager.ShakeListener, RecyclerListener {
 
 
     private static final int  permissionRequest = 1;
@@ -83,20 +92,24 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     private String spotifyToken = null;
     private String deezerToken = null;
 
-    public MusicAdapter musicAdapter;
     // Remote
     public SpotifyPlayer spotifyPlayer;
     public LocalPlayer localPlayer;
     public BaseAudioPlayer currentPlayer;
     public DeezerPlayer deezerPlayer;
-    private boolean isSpotifyPremium = false;
+    public boolean isSpotifyPremium = false;
 
     public ArrayList<Playlist> allPlaylists = new ArrayList<>();
     public ArrayList<AudioTrack> musicList = new ArrayList<>();
     protected static int curTrackIndex = -1;
 
     // ReyclerView
-    RecyclerView recycler = null;
+    RecyclerListener recyclerListener;
+
+    public void setOnMusicListLoaded(RecyclerListener rl)
+    {
+        recyclerListener = rl;
+    }
 
     //Sensor
     private SensorManager sm;
@@ -112,7 +125,15 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     private AppBarConfiguration mAppBarConfiguration;
 
+    @Override
+    public void callback(List<AudioTrack> rv) {
 
+    }
+
+
+    /**
+     * Recoit les actions de l'audiobar
+     */
     public class AudiobarBroadcast extends BroadcastReceiver {
 
 
@@ -155,6 +176,9 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     AudiobarBroadcast broadcast;
 
+
+
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,16 +186,10 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.fab);
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
 
@@ -207,6 +225,21 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         sd.setListener(this);
         sd.init(this);
     }
+
+    @Override
+    public void onSaveInstanceState(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+        savedInstanceState.putString("deezerToken",deezerToken);
+        savedInstanceState.putString("spotifyToken",spotifyToken);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        deezerToken = savedInstanceState.getString("deezerToken");
+        spotifyToken = savedInstanceState.getString("spotifyToken");
+    }
+
 
 
     @Override
@@ -398,8 +431,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     }
 
     public void doStuff(){
-        recycler =  findViewById(R.id.recyclerView);
-         musicList = getAllMusicsPathsFromPhone();
+        musicList = getAllMusicsPathsFromPhone();
 
         try {
             List<AudioTrack> spotifyURIS = getAllMusicsURISFromSpotify();
@@ -419,14 +451,10 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        //adapter = new AudioTrackListAdapter(this,R.layout.recycler_audiotrack_row,musicList);
-        musicAdapter = new MusicAdapter(musicList, localPlayer, currentPlayer, deezerPlayer, isSpotifyPremium, spotifyPlayer, this);
-        if(recycler != null)
-        {
-            recycler.setAdapter(musicAdapter);
-        recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        }
 
+        if(recyclerListener != null )
+        recyclerListener.callback(musicList);
+        //adapter = new AudioTrackListAdapter(this,R.layout.recycler_audiotrack_row,musicList);
     }
 
     public boolean isSpotifyPremium(JSONObject jsonObject)

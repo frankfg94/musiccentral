@@ -40,14 +40,6 @@ public class PlaylistFragment extends Fragment {
         galleryViewModel = ViewModelProviders.of(this).get(PlaylistViewModel.class);
 
         View root = inflater.inflate(R.layout.fragment_playlists, container, false);
-        final TextView textView = root.findViewById(R.id.text_gallery);
-        galleryViewModel.getText().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-
         gridLayout = root.findViewById(R.id.playlistGrid);
         int count = gridLayout.getChildCount();
         CardView child = (CardView)gridLayout.getChildAt(0);
