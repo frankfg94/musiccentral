@@ -56,9 +56,10 @@ public  class NotificationGenerator {
     }
 
     @SuppressLint("RestrictedApi")
-    public static void showAudioPlayerNotification(Context c, AudioTrack track){
+    public static void showAudioPlayerNotification(Context c, AudioTrack track, boolean paused){
         if(enabled)
         {
+            Log.i("NOTIFICATION","paused " + paused);
             RemoteViews expandedAudioView = new RemoteViews(c.getPackageName(),R.layout.audio_bar);
             NotificationCompat.Builder nc = new NotificationCompat.Builder(c);
             nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -66,12 +67,19 @@ public  class NotificationGenerator {
             notifyIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             PendingIntent pendingIntent = PendingIntent.getActivity(c,0,notifyIntent,PendingIntent.FLAG_UPDATE_CURRENT);
             nc.setContentIntent(pendingIntent);
-            nc.setSmallIcon(R.drawable.ic_action_pause);
+
             nc.setAutoCancel(false);
             nc.setCustomBigContentView(expandedAudioView);
+            nc.setSmallIcon(R.drawable.ic_action_audiotrack);
+
+
             nc.setContentTitle("Lecteur Central Music");
             nc.setContentText("Control Audio");
             nc.setShowWhen(false);
+            if(paused)
+                nc.getBigContentView().setInt(R.id.audio_bar_play,"setBackgroundResource", R.drawable.ic_action_play);
+            else
+                nc.getBigContentView().setInt(R.id.audio_bar_play,"setBackgroundResource",R.drawable.ic_action_pause);
             nc.getBigContentView().setTextViewText(R.id.audio_bar_song_name,track.getTitle());
             try {
                 loadImageIntoAudioBar(nc,c,track);
@@ -80,7 +88,9 @@ public  class NotificationGenerator {
             }
 
             setListenersForButtons(expandedAudioView,c);
+
             nm.notify(NOTIFICATION_ID_AUDIO_BAR,nc.build());
+
         }
     }
 
@@ -176,6 +186,10 @@ public  class NotificationGenerator {
         PendingIntent playI = PendingIntent.getBroadcast(context, 0, play, PendingIntent.FLAG_UPDATE_CURRENT);
         view.setOnClickPendingIntent(R.id.audio_bar_play, playI);
 
+
+
         Log.i("AUDIOBAR","Audio bar listeners are ready");
     }
+
+
 }

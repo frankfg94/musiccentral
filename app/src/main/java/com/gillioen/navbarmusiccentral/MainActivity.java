@@ -20,9 +20,7 @@ import com.deezer.sdk.model.Permissions;
 import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.connect.event.DialogListener;
 import com.deezer.sdk.network.request.event.DeezerError;
-import com.gillioen.navbarmusiccentral.BlindTest.BlindTrack;
 import com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity;
-import com.gillioen.navbarmusiccentral.ui.Home.HomeFragment;
 import com.gillioen.navbarmusiccentral.ui.Home.RecyclerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -33,7 +31,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -43,20 +40,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import com.deezer.sdk.model.Permissions;
-import com.deezer.sdk.network.connect.DeezerConnect;
-import com.deezer.sdk.network.connect.event.DialogListener;
-import com.deezer.sdk.network.request.event.DeezerError;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
@@ -80,7 +69,6 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements ShakeEventManager.ShakeListener, RecyclerListener {
 
-
     private static final int  permissionRequest = 1;
 
     // Android creds
@@ -92,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     private String spotifyToken = null;
     private String deezerToken = null;
 
+
     // Remote
     public SpotifyPlayer spotifyPlayer;
     public LocalPlayer localPlayer;
@@ -102,9 +91,11 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     public ArrayList<Playlist> allPlaylists = new ArrayList<>();
     public ArrayList<AudioTrack> musicList = new ArrayList<>();
     protected static int curTrackIndex = -1;
+    public static boolean audiobarIconModePlay = false;
 
     // ReyclerView
     RecyclerListener recyclerListener;
+    private boolean localMusicLoaded = false;
 
     public void setOnMusicListLoaded(RecyclerListener rl)
     {
@@ -130,6 +121,18 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     }
 
+    AudioApiLoaded apiLoaded = new AudioApiLoaded() {
+        @Override
+        public void spotifyConnected() {
+            doStuff("spotify",true);
+        }
+
+        @Override
+        public void deezerConnected() {
+            doStuff("deezer",true);
+        }
+    };
+
 
     /**
      * Recoit les actions de l'audiobar
@@ -142,10 +145,21 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         public void onReceive(Context context, Intent intent) {
             Log.i("AUDIOBAR", "Detected click from audiobar, actual track is  " + curTrackIndex);
             switch (intent.getAction()) {
+                case NotificationGenerator.NOTIFY_PAUSE:
+                    Log.i("AUDIOBAR", "NOTIFY_PAUSE");
+                    break;
                 case NotificationGenerator.NOTIFY_PLAY:
                     Toast.makeText(context, "Musique en pause ou continuée", Toast.LENGTH_LONG).show();
+                    if (audiobarIconModePlay)
+                    {
+                        pauseTrack();
+                    }
+                    else
+                    {
+                        playTrack(musicList.get(curTrackIndex));
+                        audiobarIconModePlay = true;
+                    }
                     Log.i("AUDIOBAR", "NOTIFY_PLAY");
-                    stopTracks();
                     break;
                 case NotificationGenerator.NOTIFY_NEXT:
                     Toast.makeText(context, "Musique suivante", Toast.LENGTH_LONG).show();
@@ -172,6 +186,15 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             }
 
         }
+    }
+
+    private void pauseTrack() {
+        localPlayer.Pause();
+        spotifyPlayer.Pause();
+        deezerPlayer.Pause();
+
+        audiobarIconModePlay = false;
+        NotificationGenerator.showAudioPlayerNotification(getApplicationContext(),musicList.get(curTrackIndex), true);
     }
 
     AudiobarBroadcast broadcast;
@@ -217,8 +240,10 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         }
         else
         {
-            SpotifyAuthenticateFull(CLIENT_ID_SPOTIFY,REDIRECT_URI);
-            DeezerAuthenticateFull(CLIENT_ID_DEEZER);
+            doStuff("local",true);
+            if(SpotifyAppRemote.isSpotifyInstalled(getApplicationContext()))
+                SpotifyAuthenticateFull(CLIENT_ID_SPOTIFY,REDIRECT_URI);
+             DeezerAuthenticateFull(CLIENT_ID_DEEZER);
         }
 
         sd = new ShakeEventManager();
@@ -287,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             public void onComplete(Bundle values) {
                 deezerPlayer = new DeezerPlayer(getApplication(),deezerAPI);
                 Log.i("DEEZER","Connected " + deezerAPI.getAccessToken() + " / " +  deezerAPI.getCurrentUser().getFirstName() + " " + deezerAPI.getCurrentUser().getLastName());
-                doStuff();
+                apiLoaded.deezerConnected();
             }
 
             public void onCancel() {
@@ -329,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             @Override
             public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                 spotifyPlayer = new SpotifyPlayer(spotifyAppRemote);
-                Log.d("MainActivity", "Connected! Yay!");
+                    Log.d("MainActivity", "Connected! Yay!");
             }
 
             @Override
@@ -351,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                     // Handle successful response
                     Log.i("TOKSPOT",response.getAccessToken() +" / Expiration : " + response.getExpiresIn()+ "s");
                     this.spotifyToken = response.getAccessToken();
+                    apiLoaded.spotifyConnected();
                     break;
 
                 // Auth flow returned an error
@@ -427,17 +453,27 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 songList.add(track);
             }while(songCursor.moveToNext());
         }
+        localMusicLoaded = true;
         return songList;
     }
 
-    public void doStuff(){
+    public void doStuff(String mode, boolean trySyncRecyclerView){
+        if(!localMusicLoaded)
         musicList = getAllMusicsPathsFromPhone();
 
         try {
-            List<AudioTrack> spotifyURIS = getAllMusicsURISFromSpotify();
-            musicList.addAll(spotifyURIS);
-            List<AudioTrack> deezerURIS = getAllMusicsURISFromDeezer(deezerToken);
-            musicList.addAll(deezerURIS);
+            if(mode.contains("spotify"))
+            {
+                List<AudioTrack> spotifyURIS = getAllMusicsURISFromSpotify();
+                musicList.addAll(spotifyURIS);
+            }
+            else if (mode.contains("deezer"))
+            {
+                List<AudioTrack> deezerURIS = getAllMusicsURISFromDeezer(deezerToken);
+                musicList.addAll(deezerURIS);
+            }
+
+
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -586,9 +622,13 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     public void stopTracks()
     {
+        if(localPlayer!=null)
         localPlayer.Stop();
+        if(spotifyPlayer!=null)
         spotifyPlayer.Stop();
+        if(deezerPlayer!=null)
         deezerPlayer.Stop();
+        audiobarIconModePlay = false;
     }
 
     public void playTrack(AudioTrack track)
@@ -609,7 +649,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             spotifyPlayer.Stop();
         if(deezerPlayer != null)
             deezerPlayer.Stop();
-        NotificationGenerator.showAudioPlayerNotification(getApplicationContext(),track);
+        NotificationGenerator.showAudioPlayerNotification(getApplicationContext(),track,false);
         try {
             switch (track.api)
             {
@@ -627,6 +667,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                     deezerPlayer.Play(track.audioPath);
                     break;
             }
+            audiobarIconModePlay = true;
         } catch (IOException e) {
             Log.i("EXCEPTION",e.getMessage());
             e.printStackTrace();

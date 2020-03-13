@@ -104,7 +104,7 @@ public class MusicHolder extends RecyclerView.ViewHolder {
                 spotifyPlayer.Stop();
             if(deezerPlayer != null)
                 deezerPlayer.Stop();
-            NotificationGenerator.showAudioPlayerNotification(c,track);
+            NotificationGenerator.showAudioPlayerNotification(c,track,false);
             try {
                 switch (track.api)
                 {
@@ -122,6 +122,7 @@ public class MusicHolder extends RecyclerView.ViewHolder {
                         deezerPlayer.Play(track.audioPath);
                         break;
                 }
+                MainActivity.audiobarIconModePlay = true;
             } catch (IOException e) {
                 Log.i("EXCEPTION",e.getMessage());
                 e.printStackTrace();

@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/download"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -50,16 +50,6 @@
             android:label="Preferences">
         </activity>
 
-        <!--
-        <receiver android:name=".MainActivity$AudiobarBroadcast">
-            <intent-filter>
-                <action android:name="com.gillioen.navbarmusiccentral.prev"/>
-                <action android:name="com.gillioen.navbarmusiccentral.next"/>
-                <action android:name="com.gillioen.navbarmusiccentral.play"/>
-                <action android:name="com.gillioen.navbarmusiccentral.pause"/>
-            </intent-filter>
-        </receiver>
-        -->
 
     </application>
 
