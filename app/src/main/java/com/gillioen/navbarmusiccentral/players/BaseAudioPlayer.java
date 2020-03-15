@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 public interface BaseAudioPlayer extends Serializable {
-    public void Play(String path) throws IOException;
-    public void Pause();
-    public void Stop();
+    void Play(String path) throws IOException;
+    void Pause();
+    void Stop();
 }
