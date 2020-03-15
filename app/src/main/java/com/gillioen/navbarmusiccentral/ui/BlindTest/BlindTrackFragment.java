@@ -20,6 +20,7 @@ import com.gillioen.navbarmusiccentral.R;
 public class BlindTrackFragment extends Fragment {
 
     private BlindTrackViewModel blindTrackViewModel;
+    BlindTest bt;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -28,18 +29,34 @@ public class BlindTrackFragment extends Fragment {
         blindTrackViewModel =
                 ViewModelProviders.of(this).get(BlindTrackViewModel.class);
         View root = inflater.inflate(R.layout.fragment_blindtrack, container, false);
-        BlindTest bt = new BlindTestBuilder(((MainActivity)getActivity()).musicList)
-                .setTitle("Test blindtest")
-                .setGameTrackCount(10)
-                .setTrackPlayDurationSec(5)
-                .setChoiceCountForEachTrack(4)
-                .build();
+        MainActivity ma = (MainActivity)getActivity();
+        BlindTest configBt = ma.createdBlindTest;
+        if(configBt != null)
+        {
+            bt = new BlindTestBuilder(ma.musicList)
+                    .setTitle("Blindtest configuré")
+                    .setGameTrackCount(configBt.getGameTrackCount())
+                    .setRevealDurSeconds(configBt.getTrackRevealDurationSec())
+                    .setTrackPlayDurationSec(configBt.getTrackPlayDurationSec())
+                    .setChoiceCountForEachTrack(configBt.getChoiceCountForEachTrack())
+                    .build();
+            ma.createdBlindTest = null;
+        }
+        else {
+            // if bug or not configured blindtest, we start one with default settings
+            bt = new BlindTestBuilder(ma.musicList)
+                    .setTitle(BlindTest.defaultTitle)
+                    .setGameTrackCount(BlindTest.defaultGameTrackCount)
+                    .setRevealDurSeconds(BlindTest.defaultTrackRevealDurationSec)
+                    .setTrackPlayDurationSec(BlindTest.defaultTrackPlayDurationSec)
+                    .setChoiceCountForEachTrack(BlindTest.defaultChoiceCountForEachTrack)
+                    .build();
+        }
 
         Log.i("BLINDTEST",bt.toString());
         NotificationGenerator.setEnabled(false);
         bt.startGame(this,root);
-        //bt.getBlindTracks().get(0).playInFragment(this,root);
-        //new BlindTrack(((MainActivity)getActivity()).musicList.get(3),10,4).playInFragment(this,root);
+
         return root;
     }
 

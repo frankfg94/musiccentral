@@ -2,12 +2,10 @@ package com.gillioen.navbarmusiccentral;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -20,7 +18,9 @@ import com.deezer.sdk.model.Permissions;
 import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.connect.event.DialogListener;
 import com.deezer.sdk.network.request.event.DeezerError;
+import com.gillioen.navbarmusiccentral.BlindTest.BlindTest;
 import com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity;
+import com.gillioen.navbarmusiccentral.Service.AudiobarNotificationService;
 import com.gillioen.navbarmusiccentral.ui.Home.RecyclerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     private static final String CLIENT_ID_SPOTIFY = "02b11a0a9cfb496d99e345ac42ca6285";
     private static final String CLIENT_ID_DEEZER = "396644";
     private static final String REDIRECT_URI = "https://www.google.fr/";
+    public BlindTest createdBlindTest;
 
     // Automatiquement attribué par le SDK spotify
     private String spotifyToken = null;
@@ -134,70 +135,29 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     };
 
 
-    /**
-     * Recoit les actions de l'audiobar
-     */
-    public class AudiobarBroadcast extends BroadcastReceiver {
-
-
-        public AudiobarBroadcast(){ }
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.i("AUDIOBAR", "Detected click from audiobar, actual track is  " + curTrackIndex);
-            switch (intent.getAction()) {
-                case NotificationGenerator.NOTIFY_PAUSE:
-                    Log.i("AUDIOBAR", "NOTIFY_PAUSE");
-                    break;
-                case NotificationGenerator.NOTIFY_PLAY:
-                    Toast.makeText(context, "Musique en pause ou continuée", Toast.LENGTH_LONG).show();
-                    if (audiobarIconModePlay)
-                    {
-                        pauseTrack();
-                    }
-                    else
-                    {
-                        playTrack(musicList.get(curTrackIndex));
-                        audiobarIconModePlay = true;
-                    }
-                    Log.i("AUDIOBAR", "NOTIFY_PLAY");
-                    break;
-                case NotificationGenerator.NOTIFY_NEXT:
-                    Toast.makeText(context, "Musique suivante", Toast.LENGTH_LONG).show();
-                    Log.i("AUDIOBAR", "NOTIFY_NEXT");
-                    if(curTrackIndex+1 < musicList.size())
-                    {
-                        curTrackIndex++;
-                        playTrack(musicList.get(curTrackIndex));
-                    }
-                    else
-                        Toast.makeText(context, "Fin de la liste", Toast.LENGTH_LONG).show();
-                    break;
-                case NotificationGenerator.NOTIFY_PREVIOUS:
-                    Toast.makeText(context, "NOTIFY_PREV", Toast.LENGTH_LONG).show();
-                    if(curTrackIndex-1 > 0)
-                    {
-                        curTrackIndex--;
-                        playTrack(musicList.get(curTrackIndex));
-                    }
-                    else
-                        Toast.makeText(context, "Début de la liste", Toast.LENGTH_LONG).show();
-                    Log.i("AUDIOBAR", "NOTIFY_PREV");
-                    break;
-            }
-
-        }
-    }
-
-    private void pauseTrack() {
+    protected void pauseTrack() {
         localPlayer.Pause();
         spotifyPlayer.Pause();
         deezerPlayer.Pause();
 
         audiobarIconModePlay = false;
-        NotificationGenerator.showAudioPlayerNotification(getApplicationContext(),musicList.get(curTrackIndex), true);
+        syncWithService(musicList.get(curTrackIndex),true,this);
     }
 
-    AudiobarBroadcast broadcast;
+    public static void syncWithService(AudioTrack t, boolean paused, Context c)
+    {
+        Log.i("AUDIOSERVICE","Main activity sends the broadcast, awaiting response from service");
+        Intent audioService = new Intent(c, AudiobarNotificationService.class);
+        audioService.putExtra("todo","sync_cur_track");
+        audioService.putExtra("imgPath",t.getImgPath());
+        audioService.putExtra("audioPath",t.getAudioPath());
+        audioService.putExtra("title",t.getTitle());
+        audioService.putExtra("apiType",t.getApi());
+        audioService.putExtra("isPaused",paused);
+        c.startService(audioService);
+    }
+
+    AudioBroadcastReceiver broadcast;
 
 
 
@@ -227,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+
         localPlayer = new LocalPlayer();
 
         if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -249,7 +210,11 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         sd = new ShakeEventManager();
         sd.setListener(this);
         sd.init(this);
+        AudioBroadcastReceiver.ma = this;
     }
+
+
+
 
     @Override
     public void onSaveInstanceState(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
@@ -367,6 +332,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
+
         // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
@@ -440,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
                     if (cursor.moveToFirst()) {
                         String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART));
-                        track.imgPath = path;
+                        track.setImgPath(path);
                     }
                 }catch (Exception e)
                 {
@@ -448,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 }
 
                 track.title = curTitle;
-                track.artist = curArtist;
+                track.setArtist(curArtist);
                 track.setDate(creationDate);
                 songList.add(track);
             }while(songCursor.moveToNext());
@@ -490,7 +456,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
         if(recyclerListener != null )
         recyclerListener.callback(musicList);
-        //adapter = new AudioTrackListAdapter(this,R.layout.recycler_audiotrack_row,musicList);
     }
 
     public boolean isSpotifyPremium(JSONObject jsonObject)
@@ -552,12 +517,12 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 String url =   firstImg.getString("url");
 
                 // Pour l'instant que bitmap donc à défaut d'avoir un path, on met une image
-                track.imgPath = url;
-                track.audioPath = curTrackJSON.getString("uri");
-                track.artist = curTrackJSON.getJSONArray("artists").getJSONObject(0).getString("name");
-                track.description = "description";
-                track.playListPath = playListURI;
-                track.api = ApiType.Spotify;
+                track.setImgPath(url);
+                track.setAudioPath(curTrackJSON.getString("uri"));
+                track.setArtist(curTrackJSON.getJSONArray("artists").getJSONObject(0).getString("name"));
+                track.setDescription("description");
+                track.setPlayListPath(playListURI);
+                track.setApi(ApiType.Spotify);
                 String releaseDateString = curTrackJSON.getJSONObject("album").getString("release_date");
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 Date  date= simpleDateFormat.parse(releaseDateString);
@@ -594,18 +559,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    @Override
-    protected void onStart(){
-
-        super.onStart();
-        IntentFilter filter1 = new IntentFilter();
-        filter1.addAction(NotificationGenerator.NOTIFY_PLAY);
-        filter1.addAction(NotificationGenerator.NOTIFY_NEXT);
-        filter1.addAction(NotificationGenerator.NOTIFY_PREVIOUS);
-        broadcast = new AudiobarBroadcast();
-        registerReceiver(broadcast,filter1);
-        Log.i("AUDIOBAR","Broadcast is now enabled");
-    }
 
     @Override
     protected void onStop(){
@@ -615,8 +568,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
         if(spotifyPlayer != null && spotifyPlayer.remote != null)
             SpotifyAppRemote.disconnect(spotifyPlayer.remote);
-        if(broadcast != null)
-        unregisterReceiver(broadcast);
     }
 
 
@@ -649,9 +600,10 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             spotifyPlayer.Stop();
         if(deezerPlayer != null)
             deezerPlayer.Stop();
-        NotificationGenerator.showAudioPlayerNotification(getApplicationContext(),track,false);
+
+        syncWithService(musicList.get(curTrackIndex),false,getApplicationContext());
         try {
-            switch (track.api)
+            switch (track.getApi())
             {
                 case None:
                     currentPlayer = localPlayer;
@@ -661,7 +613,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                     if(isSpotifyPremium)
                         spotifyPlayer.Play(track.audioPath);
                     else
-                        spotifyPlayer.Play("spotify:playlist:"+track.playListPath);
+                        spotifyPlayer.Play("spotify:playlist:"+track.getPlayListPath());
                     break;
                 case Deezer:
                     deezerPlayer.Play(track.audioPath);
@@ -674,22 +626,36 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         }
     }
 
+
+    private Date lastShakeDate = new Date();
+    // The time before the random music can be started after a shake
+    private int shakeDelayMilliseconds = 1000;
     Toast toastShake;
     @Override
     public void onShake() {
-        if(musicList != null && musicList.size() > 0)
+        if( lastShakeDate != null )
         {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            Random r = new Random();
-            int randomTrack = r.nextInt(musicList.size() - 1);
-            AudioTrack random = musicList.get(randomTrack);
-            playTrack(random);
-            if(toastShake == null){
-                toastShake = new Toast(getApplicationContext());
-            }
-            toastShake.cancel();
-            toastShake.makeText(getApplicationContext(), String.format("Musique : (%s)  (%s)",random.getTitle(), prefs.getString("shake", "10")), Toast.LENGTH_SHORT).show();
+            long diff =  new Date().getTime() - lastShakeDate.getTime();
+            if( diff > shakeDelayMilliseconds)
+            {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                if(prefs.getBoolean("ShakeReqHeadphones", false) && !Utilities.areHeadphonesPlugged(getApplicationContext()))
+                    return;
 
+                if(musicList != null && musicList.size() > 0)
+                {
+                    lastShakeDate = new Date();
+                    Random r = new Random();
+                    int randomTrack = r.nextInt(musicList.size() - 1);
+                    AudioTrack random = musicList.get(randomTrack);
+                    playTrack(random);
+                    if(toastShake == null){
+                        toastShake = new Toast(getApplicationContext());
+                    }
+                    toastShake.cancel();
+                    toastShake.makeText(getApplicationContext(), String.format("Musique : (%s)  (%s)",random.getTitle(), prefs.getString("shake", "10")), Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 }

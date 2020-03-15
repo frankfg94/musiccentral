@@ -11,6 +11,7 @@ public class BlindTestBuilder {
     private String title = "Undefined BlindTest";
     private int trackPlayDurationSec = 10;
     private int choiceCountForEachTrack = 4;
+    private int revealDurSeconds = 5; // The time you have to see the solution before going to the next solution
     public BlindTestBuilder(ArrayList<AudioTrack> tracks)
     {
         this.tracks = tracks;
@@ -18,7 +19,7 @@ public class BlindTestBuilder {
 
     public BlindTest build()
     {
-        return new BlindTest(getGameTrackCount(), getTitle(), getTrackPlayDurationSec(),choiceCountForEachTrack,tracks);
+        return new BlindTest(getGameTrackCount(), getTitle(), getTrackPlayDurationSec(),choiceCountForEachTrack, revealDurSeconds,tracks);
     }
 
     public int getChoiceCountForEachTrack() {
@@ -32,6 +33,11 @@ public class BlindTestBuilder {
             this.choiceCountForEachTrack = 2;
         else
             this.choiceCountForEachTrack = choiceCountForEachTrack;
+        return this;
+    }
+
+    public BlindTestBuilder setRevealDurSeconds(int finishDurSeconds) {
+        this.revealDurSeconds = finishDurSeconds;
         return this;
     }
 
@@ -62,5 +68,9 @@ public class BlindTestBuilder {
             trackPlayDurationSec = 4;
         this.trackPlayDurationSec = trackPlayDurationSec;
         return this;
+    }
+
+    public int getRevealDurSeconds() {
+        return revealDurSeconds;
     }
 }

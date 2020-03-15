@@ -7,14 +7,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.gillioen.navbarmusiccentral.ApiType;
 import com.gillioen.navbarmusiccentral.AudioTrack;
 import com.gillioen.navbarmusiccentral.MainActivity;
+import com.gillioen.navbarmusiccentral.NotificationGenerator;
 import com.gillioen.navbarmusiccentral.R;
 import com.gillioen.navbarmusiccentral.ui.BlindTest.BlindTrackFragment;
 import com.squareup.picasso.Picasso;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,14 +47,14 @@ public class BlindTrack extends AudioTrack {
 
     private void setTrackData(AudioTrack track)
     {
-        super.api = track.api;
-        super.artist = track.artist;
-        super.audioPath = track.audioPath;
-        super.description = track.description;
-        super.genre = track.genre;
-        super.imgPath = track.imgPath;
-        super.playListPath = track.playListPath;
-        super.title = track.title;
+        super.api = track.getApi();
+        super.artist = track.getArtist();
+        super.audioPath = track.getAudioPath();
+        super.description = track.getDescription();
+        super.genre = track.getGenre();
+        super.imgPath = track.getImgPath();
+        super.playListPath = track.getPlayListPath();
+        super.title = track.getTitle();
     }
 
     Drawable background;
@@ -65,6 +64,7 @@ public class BlindTrack extends AudioTrack {
         if(ma != null)
         {
             ma.stopTracks();
+            NotificationGenerator.setEnabled(false);
             Log.i("BLINDTEST","Starting question for Track " + getTitle());
             View v = root;
             ArrayList<Button> buttons = new ArrayList<>();

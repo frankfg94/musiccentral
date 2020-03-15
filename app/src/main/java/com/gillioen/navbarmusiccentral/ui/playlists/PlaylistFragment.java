@@ -94,9 +94,9 @@ public class PlaylistFragment extends Fragment {
         if(pl.tracks.size() > 0 )
         {
             AudioTrack firstTrack = pl.tracks.get(0);
-            if(firstTrack.api == ApiType.Spotify )
+            if(firstTrack.getApi() == ApiType.Spotify )
                 apiIcon.setImageResource(R.drawable.spotify);
-            else if (firstTrack.api == ApiType.Deezer)
+            else if (firstTrack.getApi() == ApiType.Deezer)
                 apiIcon.setImageResource(R.drawable.deezer);
             else
                 apiIcon.setImageResource(0);
@@ -105,7 +105,7 @@ public class PlaylistFragment extends Fragment {
             cView.setOnClickListener(v -> {
                 MainActivity act = (MainActivity)getActivity();
                 try {
-                    switch (firstTrack.api)
+                    switch (firstTrack.getApi())
                     {
                         case Deezer:
                             act.spotifyPlayer.Stop();

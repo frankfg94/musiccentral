@@ -7,15 +7,15 @@ import java.util.Date;
 
 public class AudioTrack implements Serializable
 {
-    public String audioPath;
-    public String title;
-    private Date date;
-    public String description;
-    public String imgPath;
-    public String artist;
-    public String genre;
-    public String playListPath; // Spotify only
-    public ApiType api = ApiType.None;
+    protected String audioPath;
+    protected String title;
+    protected Date date;
+    protected String description;
+    protected String imgPath;
+    protected String artist;
+    protected String genre;
+    protected String playListPath;
+    protected ApiType api = ApiType.None;
 
 
     public String getAudioPath() {
@@ -100,6 +100,10 @@ public class AudioTrack implements Serializable
 
         AudioTrack t = (AudioTrack)o;
         return getAudioPath().equals(t.getAudioPath());
+    }
+
+    public String getGenre() {
+        return  genre;
     }
 }
 

@@ -104,7 +104,7 @@ public class MusicHolder extends RecyclerView.ViewHolder {
                 spotifyPlayer.Stop();
             if(deezerPlayer != null)
                 deezerPlayer.Stop();
-            NotificationGenerator.showAudioPlayerNotification(c,track,false);
+            MainActivity.syncWithService(track,false,c);
             try {
                 switch (track.api)
                 {

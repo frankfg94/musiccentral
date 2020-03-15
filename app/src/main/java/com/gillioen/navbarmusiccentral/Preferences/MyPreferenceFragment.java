@@ -7,7 +7,6 @@ import com.gillioen.navbarmusiccentral.R;
 
 public class MyPreferenceFragment extends PreferenceFragment {
 
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {

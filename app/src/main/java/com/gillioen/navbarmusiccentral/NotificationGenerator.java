@@ -5,10 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.nfc.Tag;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -20,11 +18,6 @@ import com.squareup.picasso.Target;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import android.os.Handler;
 
 
 public  class NotificationGenerator {
@@ -37,7 +30,7 @@ public  class NotificationGenerator {
    // public static final NotificationBroadcast audioBarReceiver = new NotificationBroadcast();
 
     private static NotificationManager nm;
-    private static  boolean enabled = true;
+    private static boolean enabled = true;
 
     /**
      * Enables or disable the audio bar
@@ -56,59 +49,71 @@ public  class NotificationGenerator {
     }
 
     @SuppressLint("RestrictedApi")
-    public static void showAudioPlayerNotification(Context c, AudioTrack track, boolean paused){
+    public static void showAudioPlayerNotification(Context c, String trackName, ApiType apiType, String trackPath, boolean paused) {
         if(enabled)
         {
             Log.i("NOTIFICATION","paused " + paused);
-            RemoteViews expandedAudioView = new RemoteViews(c.getPackageName(),R.layout.audio_bar);
+            RemoteViews audioView = new RemoteViews(c.getPackageName(),R.layout.audio_bar);
             NotificationCompat.Builder nc = new NotificationCompat.Builder(c);
             nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
             Intent notifyIntent = new Intent(c,MainActivity.class);
-            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            notifyIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent pendingIntent = PendingIntent.getActivity(c,0,notifyIntent,PendingIntent.FLAG_UPDATE_CURRENT);
             nc.setContentIntent(pendingIntent);
 
             nc.setAutoCancel(false);
-            nc.setCustomBigContentView(expandedAudioView);
+            nc.setCustomContentView(audioView);
+            nc.setCustomBigContentView(audioView);
             nc.setSmallIcon(R.drawable.ic_action_audiotrack);
-
 
             nc.setContentTitle("Lecteur Central Music");
             nc.setContentText("Control Audio");
             nc.setShowWhen(false);
+
+            // Replace the play button image
             if(paused)
-                nc.getBigContentView().setInt(R.id.audio_bar_play,"setBackgroundResource", R.drawable.ic_action_play);
+                nc.getContentView().setInt(R.id.audio_bar_play,"setBackgroundResource", R.drawable.ic_action_play);
             else
-                nc.getBigContentView().setInt(R.id.audio_bar_play,"setBackgroundResource",R.drawable.ic_action_pause);
-            nc.getBigContentView().setTextViewText(R.id.audio_bar_song_name,track.getTitle());
+                nc.getContentView().setInt(R.id.audio_bar_play,"setBackgroundResource",R.drawable.ic_action_pause);
+
+            nc.getContentView().setTextViewText(R.id.audio_bar_song_name,trackName);
             try {
-                loadImageIntoAudioBar(nc,c,track);
+                loadImageIntoAudioBar(nc,c,apiType,trackPath);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            setListenersForButtons(expandedAudioView,c);
+            setListenersForButtons(audioView,c);
 
             nm.notify(NOTIFICATION_ID_AUDIO_BAR,nc.build());
 
         }
     }
+    @SuppressLint("RestrictedApi")
+    public static void showAudioPlayerNotification(Context c, AudioTrack track, boolean paused){
+        showAudioPlayerNotification(c,track.getTitle(),track.getApi(),track.getAudioPath(), paused);
+    }
+
+    private static NotificationCompat.Builder loadImageIntoAudioBar(NotificationCompat.Builder nc, Context c, AudioTrack track) throws IOException {
+        return loadImageIntoAudioBar(nc,c,track.api,track.imgPath);
+    }
+
 
     @SuppressLint("RestrictedApi")
-    private static NotificationCompat.Builder loadImageIntoAudioBar(NotificationCompat.Builder nc, Context c, AudioTrack track) throws IOException {
+    private static NotificationCompat.Builder loadImageIntoAudioBar(NotificationCompat.Builder nc, Context c,ApiType api, String pathOfImg) throws IOException {
 
         // On vérifie si on est sur le thread UI
         if (Looper.myLooper() != Looper.getMainLooper())
             return nc;
 
-        if(track.imgPath != null)
+        if(pathOfImg != null)
         {
-            if(track.getApi() != ApiType.None)
+            if(api != ApiType.None)
             {
-                Picasso.with(c).load(track.imgPath).into(new Target() {
+                Picasso.with(c).load(pathOfImg).into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        nc.getBigContentView().setImageViewBitmap( R.id.track_img_audiobar,bitmap);
+                        nc.getContentView().setImageViewBitmap( R.id.track_img_audiobar,bitmap);
                     }
 
                     @Override
@@ -124,11 +129,11 @@ public  class NotificationGenerator {
             }
             else
             {
-                File f = new File(track.imgPath);
+                File f = new File(pathOfImg);
                 Picasso.with(c).load(f).into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                        nc.getBigContentView().setImageViewBitmap( R.id.track_img_audiobar,bitmap);
+                        nc.getContentView().setImageViewBitmap( R.id.track_img_audiobar,bitmap);
                     }
 
                     @Override
@@ -145,10 +150,10 @@ public  class NotificationGenerator {
         }
         else
         {
-            Picasso.with(c).load(track.imgPath).into(new Target() {
+            Picasso.with(c).load(pathOfImg).into(new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    nc.getBigContentView().setImageViewResource( R.id.track_img_audiobar,R.drawable.ic_action_audiotrack);
+                    nc.getContentView().setImageViewResource( R.id.track_img_audiobar,R.drawable.ic_action_audiotrack);
                 }
 
                 @Override
@@ -173,7 +178,6 @@ public  class NotificationGenerator {
      */
     public static void setListenersForButtons(RemoteViews view, Context context){
         Intent prev = new Intent(NOTIFY_PREVIOUS);
-        Intent pause = new Intent(NOTIFY_PAUSE);
         Intent next = new Intent(NOTIFY_NEXT);
         Intent play = new Intent(NOTIFY_PLAY);
 
@@ -186,10 +190,7 @@ public  class NotificationGenerator {
         PendingIntent playI = PendingIntent.getBroadcast(context, 0, play, PendingIntent.FLAG_UPDATE_CURRENT);
         view.setOnClickPendingIntent(R.id.audio_bar_play, playI);
 
-
-
         Log.i("AUDIOBAR","Audio bar listeners are ready");
     }
-
 
 }

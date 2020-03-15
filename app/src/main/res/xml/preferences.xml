@@ -20,6 +20,14 @@
             android:dependency="ShufflePreferences">
         </ListPreference>
 
+        <CheckBoxPreference
+            android:icon="@drawable/ic_headset_black_24dp"
+            android:key="ShakeReqHeadphones"
+            android:summary="Headphones are required to shuffle the musics"
+            android:dependency="ShufflePreferences"
+            android:title="Headphones only"
+            />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
