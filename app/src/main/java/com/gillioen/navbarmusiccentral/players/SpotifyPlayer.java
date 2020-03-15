@@ -2,14 +2,17 @@ package com.gillioen.navbarmusiccentral.players;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.protocol.types.Track;
 
 public class SpotifyPlayer implements BaseAudioPlayer {
 
+    @NonNull
     public final SpotifyAppRemote remote;
 
-    public SpotifyPlayer(SpotifyAppRemote remote)
+    public SpotifyPlayer(@NonNull SpotifyAppRemote remote)
     {
         this.remote =  remote;
 

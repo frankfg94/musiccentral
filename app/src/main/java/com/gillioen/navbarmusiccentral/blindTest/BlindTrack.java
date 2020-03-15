@@ -7,6 +7,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+
 import com.gillioen.navbarmusiccentral.ApiType;
 import com.gillioen.navbarmusiccentral.AudioTrack;
 import com.gillioen.navbarmusiccentral.MainActivity;
@@ -26,13 +29,14 @@ public class BlindTrack extends AudioTrack {
     private int finishDurSeconds = 5; // The time you have to see the solution before going to the next solution
     private int maxAnswersCount = 4; // The number of results that can be displayed on screen
     public OnBlindtrackFinished  blindtrackFinished;
+    @NonNull
     private String defaultText = "Guess this Track";
 
     public void setCustomEventListener(OnBlindtrackFinished eventListener) {
         blindtrackFinished = eventListener;
     }
 
-    public BlindTrack(AudioTrack audioTrack, int playDurSeconds, int maxAnswersCount, int finishDurSeconds)
+    public BlindTrack(@NonNull AudioTrack audioTrack, int playDurSeconds, int maxAnswersCount, int finishDurSeconds)
     {
         setTrackData(audioTrack);
         this.playDurSeconds = playDurSeconds;
@@ -42,10 +46,10 @@ public class BlindTrack extends AudioTrack {
             possibleAnswers = new ArrayList<>();
         possibleAnswers.add(getTitle());
 
-        this.blindtrackFinished = () -> Log.i("BLINDTEST","Finished playing the track " + audioTrack);
+        this.blindtrackFinished = () -> Log.d("BLINDTEST","Finished playing the track " + audioTrack);
     }
 
-    private void setTrackData(AudioTrack track)
+    private void setTrackData(@NonNull AudioTrack track)
     {
         super.api = track.getApi();
         super.artist = track.getArtist();
@@ -58,14 +62,14 @@ public class BlindTrack extends AudioTrack {
     }
 
     Drawable background;
-    public void playInFragment(BlindTrackFragment frag, View root)
+    public void playInFragment(@NonNull BlindTrackFragment frag, @NonNull View root)
     {
         MainActivity ma = (MainActivity)frag.getActivity();
         if(ma != null)
         {
             ma.stopTracks();
             NotificationGenerator.setEnabled(false);
-            Log.i("BLINDTEST","Starting question for Track " + getTitle());
+            Log.d("BLINDTEST","Starting question for Track " + getTitle());
             View v = root;
             ArrayList<Button> buttons = new ArrayList<>();
             ImageView trackCoverImgView = v.findViewById(R.id.trackImageBlindtest);
@@ -79,7 +83,7 @@ public class BlindTrack extends AudioTrack {
             buttons.add(b3);
             buttons.add(b4);
 
-            // On mélange les réponses pour que la réponse n'apparaisse pas sur le premier bouton à chaque fois
+            // Whe shufffle the anwers so that the good answer won't be the first button that will be displayed
             Collections.shuffle(possibleAnswers);
             background = b1.getBackground();
 
@@ -175,7 +179,7 @@ public class BlindTrack extends AudioTrack {
 
     }
 
-    public void assignAnswers(BlindTest blindTest,List<BlindTrack> allTracksFromPhone) {
+    public void assignAnswers(@NonNull BlindTest blindTest, @NonNull List<BlindTrack> allTracksFromPhone) {
 
         // Normally set to 1 (the name of the track is there by default)
         int curAnswerCount = possibleAnswers.size();
@@ -189,6 +193,7 @@ public class BlindTrack extends AudioTrack {
         Log.i("BLINDTEST","Assign List : \n"+trackTitles);
         Collections.sort(trackTitles);
 
+        // Assign an answer
         for(int i = 0 ; i < trackTitles.size() && curAnswerCount < maxAnswersCount; i++)
         {
             String curTrackTitle = trackTitles.get(i);

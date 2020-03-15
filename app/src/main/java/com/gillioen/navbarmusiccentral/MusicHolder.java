@@ -6,9 +6,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.gillioen.navbarmusiccentral.players.BaseAudioPlayer;
 import com.squareup.picasso.Picasso;
 import java.io.File;
@@ -16,17 +16,28 @@ import java.io.IOException;
 
 public class MusicHolder extends RecyclerView.ViewHolder {
 
+    @Nullable
     private TextView tviewTitle = null;
+    @Nullable
     private TextView tviewAuthor = null;
+    @Nullable
     private ImageView apiIcon = null;
+    @Nullable
     private ImageView imageView = null;
+    @Nullable
     LinearLayoutCompat myElement = null;
 
+    @Nullable
     private AudioTrack currentTrack = null;
+    @Nullable
     private BaseAudioPlayer localPlayer = null;
+    @Nullable
     private BaseAudioPlayer currentPlayer = null;
+    @Nullable
     private BaseAudioPlayer deezerPlayer = null;
+    @Nullable
     private BaseAudioPlayer spotifyPlayer = null;
+    @Nullable
     private Boolean isSpotifyPremium = null;
 
     public MusicHolder(@NonNull View itemView, BaseAudioPlayer localPlayer, BaseAudioPlayer currentPlayer, BaseAudioPlayer deezerPlayer, Boolean isSpotifyPremium, BaseAudioPlayer spotifyPlayer, Context context) {
@@ -44,12 +55,10 @@ public class MusicHolder extends RecyclerView.ViewHolder {
         this.spotifyPlayer = spotifyPlayer;
     }
 
-    public void display(AudioTrack track, Context c, int pos) {
+    public void display(@NonNull AudioTrack track, Context c, int pos) {
         currentTrack = track;
         tviewTitle.setText(currentTrack.getTitle());
         tviewAuthor.setText(currentTrack.getArtist());
-
-
 
         if(currentTrack.imgPath!=null) {
 

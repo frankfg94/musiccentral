@@ -15,6 +15,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,13 +33,16 @@ import java.util.Comparator;
 public class HomeFragment extends Fragment {
 
     private HomeViewModel playlistViewModel;
+    @Nullable
     public ArrayList<AudioTrack> ar = null;
     private boolean ascendingSort = true;
 
     // Sauvegarde des données du recycler view
+    @Nullable
     RecyclerView rv = null;
 
     // Mettre la donnée dans le recycler view
+    @Nullable
     public MusicAdapter musicAdapter;
     private static boolean init = false;
 
@@ -123,7 +127,7 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
+            public void afterTextChanged(@NonNull Editable s) {
                 filterRecyclerView(s.toString());
             }
         });
@@ -131,7 +135,7 @@ public class HomeFragment extends Fragment {
 
         sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(@NonNull AdapterView<?> parent, View view, int position, long id) {
                 ar = act.musicList;
                 Comparator<AudioTrack> sortingAlgorithm = new AudioTrackAlphabetComparator();
                 switch (position) {
@@ -173,7 +177,7 @@ public class HomeFragment extends Fragment {
      * Filtre par auteur et par nom de musique
      * @param text texte de la barre de recherche
      */
-    private void filterRecyclerView(String text){
+    private void filterRecyclerView(@NonNull String text){
         ArrayList<AudioTrack> filteredList = new ArrayList();
         MainActivity ma = ((MainActivity)getActivity());
         for(AudioTrack t : ma.musicList)

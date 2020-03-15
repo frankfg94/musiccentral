@@ -13,7 +13,6 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
 import com.deezer.sdk.model.Permissions;
 import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.connect.event.DialogListener;
@@ -28,7 +27,6 @@ import com.gillioen.navbarmusiccentral.service.AudiobarNotificationService;
 import com.gillioen.navbarmusiccentral.ui.Home.RecyclerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
 import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -37,7 +35,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -80,10 +77,13 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     private static final String CLIENT_ID_SPOTIFY = "02b11a0a9cfb496d99e345ac42ca6285";
     private static final String CLIENT_ID_DEEZER = "396644";
     private static final String REDIRECT_URI = "https://www.google.fr/";
+    @Nullable
     public BlindTest createdBlindTest;
 
-    // Automatiquement attribué par le SDK spotify
+    // Automatically attributed by the apis
+    @Nullable
     private String spotifyToken = null;
+    @Nullable
     private String deezerToken = null;
 
 
@@ -94,7 +94,9 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     public DeezerPlayer deezerPlayer;
     public boolean isSpotifyPremium = false;
 
+    @NonNull
     public ArrayList<Playlist> allPlaylists = new ArrayList<>();
+    @NonNull
     public ArrayList<AudioTrack> musicList = new ArrayList<>();
     protected static int curTrackIndex = -1;
     public static boolean audiobarIconModePlay = false;
@@ -130,17 +132,18 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     }
 
+    @NonNull
     AudioApiLoaded apiLoaded = new AudioApiLoaded() {
         @Override
         public void spotifyConnected() {
-            doStuff("spotify",true);
+            loadMusics("spotify",true);
             Snackbar.make(findViewById(R.id.coordinator_layout), "Spotify Account connected", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
 
         @Override
         public void deezerConnected()
         {
-            doStuff("deezer",true);
+            loadMusics("deezer",true);
              Snackbar.make(findViewById(R.id.coordinator_layout), "Deezer Account connected", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
     };
@@ -155,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         syncWithService(musicList.get(curTrackIndex),true,this);
     }
 
-    public static void syncWithService(AudioTrack t, boolean paused, Context c)
+    public static void syncWithService(@NonNull AudioTrack t, boolean paused, @NonNull Context c)
     {
         Log.d("AUDIOSERVICE","Main activity sends the broadcast, awaiting response from service");
         Intent audioService = new Intent(c, AudiobarNotificationService.class);
@@ -211,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         else
         {
             // If we have the storage permissions, load the apis
-            doStuff("local",true);
+            loadMusics("local",true);
             if(SpotifyAppRemote.isSpotifyInstalled(getApplicationContext()))
                 SpotifyAuthenticateFull(CLIENT_ID_SPOTIFY,REDIRECT_URI);
              DeezerAuthenticateFull(CLIENT_ID_DEEZER);
@@ -250,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     /** Preferences management **/
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()) {
             case R.id.preferences: {
                 Intent intentPref = new Intent(getApplicationContext(), MyPreferenceActivity.class);
@@ -261,7 +264,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         return super.onOptionsItemSelected(item);
     }
 
-    //On ramène les préférences à l'activité
 
     @Override
     public boolean onSupportNavigateUp() {
@@ -271,6 +273,8 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     }
 
     DeezerConnect deezerAPI;
+
+    // Connect to the deezer api, the application must be registered on their website
     void DeezerAuthenticateFull(String clientId)
     {
         deezerAPI = new DeezerConnect(this, clientId);
@@ -294,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
             }
 
-            public void onException(Exception e) {
+            public void onException(@NonNull Exception e) {
                 Log.d("DEEZER","Error " + e.getMessage() + System.lineSeparator() + e.getStackTrace()) ;
 
             }
@@ -303,12 +307,12 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     }
 
 
-    // L'application doit être enregistrée sur le site de spotify avec son nom de package, son hash et la redirect uri doit être whitelistée
+    // For this to work, the app must be registered on the spotify website with its package name, the hash & the redirect uri must be whitelisted
     void SpotifyAuthenticateFull(String clientId,String redirectUri)
     {
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(clientId, AuthenticationResponse.Type.TOKEN, redirectUri);
 
-        // On active toutes les autorisations spotify possibles
+        // Enabling all necessary spotify authorizations
         builder.setScopes(new String[]{"streaming","ugc-image-upload","user-read-playback-state","user-modify-playback-state",
                 "user-read-currently-playing","app-remote-control","user-read-email","user-read-private",
                 "playlist-read-collaborative","playlist-modify-public","playlist-read-private","playlist-modify-private",
@@ -323,24 +327,24 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                         .showAuthView(true)
                         .build();
 
-        // Activation du lecteur audioSpotify
+        // Enabling the remote audioplayer for Spotify
         SpotifyAppRemote.connect(this, connectionParams, new Connector.ConnectionListener() {
             @Override
-            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+            public void onConnected(@NonNull SpotifyAppRemote spotifyAppRemote) {
                 spotifyPlayer = new SpotifyPlayer(spotifyAppRemote);
                     Log.d("MainActivity", "Connected! Yay!");
             }
 
             @Override
-            public void onFailure(Throwable throwable) {
+            public void onFailure(@NonNull Throwable throwable) {
                 Log.e("MainActivity", throwable.getMessage(), throwable);
             }
         });
     }
 
+    // Check response from the spotify login activity
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-
 
         // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {
@@ -366,6 +370,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         }
     }
 
+    @NonNull
     public List<AudioTrack> getAllMusicsURISFromDeezer(String accessToken) throws ExecutionException, InterruptedException, JSONException, IOException, DeezerError {
         List<Playlist> pl = new DeezerGetPlaylistsTask().execute(deezerAPI).get();
         List<AudioTrack> tracks = new ArrayList<>();
@@ -375,12 +380,9 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         return tracks;
     }
 
-    final public static Uri sArtworkUri = Uri
-            .parse("content://media/external/audio/albumart");
+    @NonNull
     public ArrayList<AudioTrack> getAllMusicsPathsFromPhone()
     {
-
-
         ArrayList<AudioTrack> songList = new ArrayList<>();
         ContentResolver contentResolver = getContentResolver();
         Uri songUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -432,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         return songList;
     }
 
-    public void doStuff(String mode, boolean trySyncRecyclerView){
+    public void loadMusics(@NonNull String mode, boolean trySyncRecyclerView){
         if(!localMusicLoaded)
         musicList = getAllMusicsPathsFromPhone();
 
@@ -467,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         recyclerListener.callback(musicList);
     }
 
-    public boolean isSpotifyPremium(JSONObject jsonObject)
+    public boolean isSpotifyPremium(@NonNull JSONObject jsonObject)
     {
         try {
             return jsonObject.getString("product").equals("premium");
@@ -477,6 +479,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         }
     }
 
+    @NonNull
     private ArrayList<AudioTrack> getAllMusicsURISFromSpotify() throws ExecutionException, InterruptedException, JSONException, ParseException {
 
         //Get the URIs with AsyncTask and JSON Objects
@@ -503,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             JSONObject tracksForCurPlaylistJSON = new JSONObject(tracks.get());
             JSONArray tracksArray = tracksForCurPlaylistJSON.getJSONArray("items");
 
-            // Configuration de la playlist
+            // Configuration of the playlist
             pl.name = playListsArray.getJSONObject(y).getString("name");
             pl.description = playListsArray.getJSONObject(y).getString("description");
             if(playListsArray.getJSONObject(y).getJSONArray("images").length() > 0 )
@@ -550,7 +553,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         if (requestCode == permissionRequest) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -588,7 +591,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         audiobarIconModePlay = false;
     }
 
-    public void playTrack(AudioTrack track)
+    public void playTrack(@NonNull AudioTrack track)
     {
         try {
             curTrackIndex = musicList.indexOf(track);
@@ -633,6 +636,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
     }
 
 
+    @NonNull
     private Date lastShakeDate = new Date();
     // The time before the random music can be started after a shake
     private int shakeDelayMilliseconds = 1000;

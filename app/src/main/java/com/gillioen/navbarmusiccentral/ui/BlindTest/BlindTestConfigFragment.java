@@ -54,7 +54,7 @@ public class BlindTestConfigFragment extends Fragment {
     }
 
 
-    private void setPickersLimits(NumberPicker numberPickerListen, NumberPicker numberPickerReveal, NumberPicker numberPickerTrackCount) {
+    private void setPickersLimits(@NonNull NumberPicker numberPickerListen, @NonNull NumberPicker numberPickerReveal, @NonNull NumberPicker numberPickerTrackCount) {
         MainActivity ma = (MainActivity) getActivity();
 
         numberPickerListen.setMinValue(3);
@@ -66,7 +66,7 @@ public class BlindTestConfigFragment extends Fragment {
     }
 
     // The values will be automatically adjusted by the getters & setters
-    private void setListeners( Button startButton, RadioGroup radioGroup, BlindTestBuilder builder, View v) {
+    private void setListeners(@NonNull Button startButton, @NonNull RadioGroup radioGroup, @NonNull BlindTestBuilder builder, @NonNull View v) {
 
 
         startButton.setOnClickListener(e -> {

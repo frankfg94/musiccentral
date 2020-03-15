@@ -9,8 +9,12 @@ import android.hardware.SensorManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public class ShakeEventManager implements SensorEventListener {
 
+    @Nullable
     private SensorManager sManager;
     private Sensor s;
 
@@ -20,6 +24,7 @@ public class ShakeEventManager implements SensorEventListener {
     private static final int SHAKE_WINDOW_TIME_INTERVAL = 500; // milliseconds
 
     // Gravity force on x,y,z axis
+    @NonNull
     private float[] gravity = new float[3];
 
     private int counter;
@@ -34,7 +39,7 @@ public class ShakeEventManager implements SensorEventListener {
         this.listener = listener;
     }
 
-    public void init(Context ctx) {
+    public void init(@NonNull Context ctx) {
         sManager = (SensorManager)  ctx.getSystemService(Context.SENSOR_SERVICE);
         s = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         this.ctx = ctx;
@@ -46,7 +51,7 @@ public class ShakeEventManager implements SensorEventListener {
     }
 
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
+    public void onSensorChanged(@NonNull SensorEvent sensorEvent) {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this.ctx);
         if(prefs.getBoolean("ShufflePreferences", false)) {
@@ -85,7 +90,7 @@ public class ShakeEventManager implements SensorEventListener {
     }
 
 
-    private float calcMaxAcceleration(SensorEvent event) {
+    private float calcMaxAcceleration(@NonNull SensorEvent event) {
         gravity[0] = calcGravityForce(event.values[0], 0);
         gravity[1] = calcGravityForce(event.values[1], 1);
         gravity[2] = calcGravityForce(event.values[2], 2);

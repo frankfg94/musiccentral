@@ -1,5 +1,7 @@
 package com.gillioen.navbarmusiccentral.blindTest;
 
+import androidx.annotation.NonNull;
+
 import com.gillioen.navbarmusiccentral.AudioTrack;
 
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ public class BlindTestBuilder {
         this.tracks = tracks;
     }
 
+    @NonNull
     public BlindTest build()
     {
         return new BlindTest(getGameTrackCount(), getTitle(), getTrackPlayDurationSec(),choiceCountForEachTrack, revealDurSeconds,tracks);
@@ -26,6 +29,7 @@ public class BlindTestBuilder {
         return choiceCountForEachTrack;
     }
 
+    @NonNull
     public BlindTestBuilder setChoiceCountForEachTrack(int choiceCountForEachTrack) {
         if(choiceCountForEachTrack > 4)
             this.choiceCountForEachTrack = 4;
@@ -36,6 +40,7 @@ public class BlindTestBuilder {
         return this;
     }
 
+    @NonNull
     public BlindTestBuilder setRevealDurSeconds(int finishDurSeconds) {
         this.revealDurSeconds = finishDurSeconds;
         return this;
@@ -45,6 +50,7 @@ public class BlindTestBuilder {
         return gameTrackCount;
     }
 
+    @NonNull
     public BlindTestBuilder setGameTrackCount(int gameTrackCount) {
         this.gameTrackCount = gameTrackCount;
         return this;
@@ -54,6 +60,7 @@ public class BlindTestBuilder {
         return title;
     }
 
+    @NonNull
     public BlindTestBuilder setTitle(String title) {
         this.title = title;
         return this;
@@ -63,6 +70,7 @@ public class BlindTestBuilder {
         return trackPlayDurationSec;
     }
 
+    @NonNull
     public BlindTestBuilder setTrackPlayDurationSec(int trackPlayDurationSec) {
         if(trackPlayDurationSec < 4)
             trackPlayDurationSec = 4;

@@ -2,6 +2,8 @@ package com.gillioen.navbarmusiccentral;
 
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -54,7 +56,7 @@ public class AudioTrack implements Serializable
         return artist;
     }
 
-    public void setArtist(String artist) {
+    public void setArtist(@NonNull String artist) {
         if(artist.equals("<unknown>"))
             this.artist = "Inconnu";
         else
@@ -77,6 +79,7 @@ public class AudioTrack implements Serializable
         this.api = api;
     }
 
+    @NonNull
     @Override
     public String toString()
     {

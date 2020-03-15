@@ -3,6 +3,8 @@ package com.gillioen.navbarmusiccentral;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +23,8 @@ public class MusicDownloaderTask extends AsyncTask<String, Integer, String> {
         this.token = token;
     }
 
-    private String readStream(InputStream is) throws IOException {
+    @NonNull
+    private String readStream(@NonNull InputStream is) throws IOException {
         StringBuilder sb = new StringBuilder();
         BufferedReader r = new BufferedReader(new InputStreamReader(is),1000);
         for (String line = r.readLine(); line != null; line =r.readLine()){
@@ -30,6 +33,7 @@ public class MusicDownloaderTask extends AsyncTask<String, Integer, String> {
         return sb.toString();
     }
 
+    @NonNull
     @Override
     protected String doInBackground(String... params) {
 

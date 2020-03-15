@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 /**
  * Recoit les actions de l'audiobar
  */
@@ -16,7 +18,7 @@ public class AudioBroadcastReceiver extends BroadcastReceiver {
 
     public AudioBroadcastReceiver(){ }
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(Context context, @NonNull Intent intent) {
 
         Log.d("AUDIOBAR", "Detected click from audiobar, actual track is  " + MainActivity.curTrackIndex);
         switch (intent.getAction()) {

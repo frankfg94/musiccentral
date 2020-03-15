@@ -2,6 +2,9 @@ package com.gillioen.navbarmusiccentral.players;
 
 import android.app.Application;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.request.event.DeezerError;
 import com.deezer.sdk.player.PlaylistPlayer;
@@ -14,7 +17,9 @@ import java.io.IOException;
 public class DeezerPlayer implements  BaseAudioPlayer{
     private Application app;
     private final DeezerConnect api;
+    @Nullable
     public TrackPlayer tp = null;
+    @Nullable
     PlaylistPlayer pp = null;
     public boolean isPlaying = false;
     public DeezerPlayer(Application app, DeezerConnect api) {
@@ -23,7 +28,7 @@ public class DeezerPlayer implements  BaseAudioPlayer{
     }
 
     @Override
-    public void Play(String songId) throws IOException {
+    public void Play(@NonNull String songId) {
         try {
              tp = new TrackPlayer(app,api, NetworkStateCheckerFactory.wifiAndMobile());
              tp.playTrack(Long.parseLong(songId));
@@ -53,7 +58,7 @@ public class DeezerPlayer implements  BaseAudioPlayer{
             pp.stop();
     }
 
-    public void PlayPlaylist(String audioPath) {
+    public void PlayPlaylist(@NonNull String audioPath) {
         try {
             pp = new PlaylistPlayer(app,api, NetworkStateCheckerFactory.wifiAndMobile());
             pp.playPlaylist(Long.parseLong(audioPath));

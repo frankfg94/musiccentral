@@ -11,11 +11,11 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -27,8 +27,7 @@ public  class NotificationGenerator {
     public static final String NOTIFY_PLAY = "com.gillioen.navbarmusiccentral.play";
     public static final String NOTIFY_NEXT = "com.gillioen.navbarmusiccentral.next";
 
-   // public static final NotificationBroadcast audioBarReceiver = new NotificationBroadcast();
-
+    @Nullable
     private static NotificationManager nm;
     private static boolean enabled = true;
 
@@ -49,7 +48,7 @@ public  class NotificationGenerator {
     }
 
     @SuppressLint("RestrictedApi")
-    public static void showAudioPlayerNotification(Context c, String trackName, ApiType apiType, String trackPath, boolean paused) {
+    public static void showAudioPlayerNotification(@NonNull Context c, String trackName, ApiType apiType, String trackPath, boolean paused) {
         if(enabled)
         {
             Log.d("NOTIFICATION","paused " + paused);
@@ -90,19 +89,21 @@ public  class NotificationGenerator {
         }
     }
     @SuppressLint("RestrictedApi")
-    public static void showAudioPlayerNotification(Context c, AudioTrack track, boolean paused){
+    public static void showAudioPlayerNotification(@NonNull Context c, @NonNull AudioTrack track, boolean paused){
         showAudioPlayerNotification(c,track.getTitle(),track.getApi(),track.getAudioPath(), paused);
     }
 
-    private static NotificationCompat.Builder loadImageIntoAudioBar(NotificationCompat.Builder nc, Context c, AudioTrack track) throws IOException {
+    @NonNull
+    private static NotificationCompat.Builder loadImageIntoAudioBar(@NonNull NotificationCompat.Builder nc, Context c, @NonNull AudioTrack track) throws IOException {
         return loadImageIntoAudioBar(nc,c,track.api,track.imgPath);
     }
 
 
+    @NonNull
     @SuppressLint("RestrictedApi")
-    private static NotificationCompat.Builder loadImageIntoAudioBar(NotificationCompat.Builder nc, Context c,ApiType api, String pathOfImg) throws IOException {
+    private static NotificationCompat.Builder loadImageIntoAudioBar(@NonNull NotificationCompat.Builder nc, Context c, ApiType api, @Nullable String pathOfImg) throws IOException {
 
-        // On vérifie si on est sur le thread UI
+        // We verify that we are on the UI thread
         if (Looper.myLooper() != Looper.getMainLooper())
             return nc;
 
@@ -176,7 +177,7 @@ public  class NotificationGenerator {
      * @param view
      * @param context
      */
-    public static void setListenersForButtons(RemoteViews view, Context context){
+    public static void setListenersForButtons(@NonNull RemoteViews view, Context context){
         Intent prev = new Intent(NOTIFY_PREVIOUS);
         Intent next = new Intent(NOTIFY_NEXT);
         Intent play = new Intent(NOTIFY_PLAY);

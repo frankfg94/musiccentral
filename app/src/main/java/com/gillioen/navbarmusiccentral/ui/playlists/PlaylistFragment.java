@@ -58,7 +58,7 @@ public class PlaylistFragment extends Fragment {
         return root;
     }
 
-    private void AddAPISPlayLists(GridLayout layout, ArrayList<Playlist> pLists) throws ExecutionException, InterruptedException, JSONException {
+    private void AddAPISPlayLists(@NonNull GridLayout layout, @NonNull ArrayList<Playlist> pLists) throws ExecutionException, InterruptedException, JSONException {
         for(Playlist pl : pLists) {
             CardView cv = generateCardViewFromPlaylist(pl);
             layout.addView(cv);
@@ -70,7 +70,8 @@ public class PlaylistFragment extends Fragment {
 
     public int POS_IMAGE = 0;
     public int POS_TEXTVIEW = 1;
-    private CardView generateCardViewFromPlaylist(Playlist pl)
+    @NonNull
+    private CardView generateCardViewFromPlaylist(@NonNull Playlist pl)
     {
 
         CardView cView = (CardView) LayoutInflater.from(getActivity()).inflate(R.layout.playlist_cardview, null);

@@ -3,6 +3,8 @@ package com.gillioen.navbarmusiccentral;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.deezer.sdk.model.Track;
 import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.request.DeezerRequest;
@@ -19,6 +21,7 @@ import java.util.List;
 public class DeezerGetPlaylistsTask extends AsyncTask<DeezerConnect,Integer, List<Playlist>> {
 
 
+    @NonNull
     @Override
     protected List<Playlist> doInBackground(DeezerConnect... deezerConnects) {
         DeezerRequest request = DeezerRequestFactory.requestCurrentUserPlaylists();
@@ -36,6 +39,8 @@ public class DeezerGetPlaylistsTask extends AsyncTask<DeezerConnect,Integer, Lis
             deezerError.printStackTrace();
         }
         Log.d("DEEZER","Found" + deezPlaylists.size() + " playlists");
+
+        // Converting each deezer playlist to a Centra Music Playlist
         for(com.deezer.sdk.model.Playlist pl : deezPlaylists)
         {
             ArrayList<AudioTrack> tracksForCurPlaylist = new ArrayList<>();
@@ -55,7 +60,9 @@ public class DeezerGetPlaylistsTask extends AsyncTask<DeezerConnect,Integer, Lis
                 deezerError.printStackTrace();
             }
 
-            Log.i("DEEZER","Found " +  plListTracks.size() + " tracks in playlist : " + pl.getTitle() );
+            Log.d("DEEZER","Found " +  plListTracks.size() + " tracks in playlist : " + pl.getTitle() );
+
+            // Converting a playlist track to an audiotrack
             for(Track t : plListTracks)
             {
                 AudioTrack track = new AudioTrack();
@@ -68,7 +75,7 @@ public class DeezerGetPlaylistsTask extends AsyncTask<DeezerConnect,Integer, Lis
                 track.playListPath =  String.valueOf(pl.getId());
                 track.imgPath = t.getArtist().getSmallImageUrl();
 
-                Log.i("DEEZER",track.toString());
+                Log.d("DEEZER",track.toString());
                 tracksForCurPlaylist.add(track);
             }
             p.tracks = tracksForCurPlaylist;

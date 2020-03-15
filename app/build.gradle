@@ -62,6 +62,6 @@ dependencies {
     implementation 'androidx.browser:browser:1.0.0'
 
     // Navigation drawer
-    implementation 'com.android.support:design:27.0.2'
-    implementation 'com.android.support:support-v4:27.0.2'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }
