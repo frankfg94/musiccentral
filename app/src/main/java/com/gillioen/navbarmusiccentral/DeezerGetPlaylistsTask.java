@@ -35,7 +35,7 @@ public class DeezerGetPlaylistsTask extends AsyncTask<DeezerConnect,Integer, Lis
         } catch (DeezerError deezerError) {
             deezerError.printStackTrace();
         }
-        Log.i("DEEZER","Found" + deezPlaylists.size() + " playlists");
+        Log.d("DEEZER","Found" + deezPlaylists.size() + " playlists");
         for(com.deezer.sdk.model.Playlist pl : deezPlaylists)
         {
             ArrayList<AudioTrack> tracksForCurPlaylist = new ArrayList<>();

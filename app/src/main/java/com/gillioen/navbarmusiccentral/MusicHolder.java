@@ -8,6 +8,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.gillioen.navbarmusiccentral.players.BaseAudioPlayer;
 import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.IOException;
@@ -94,7 +96,7 @@ public class MusicHolder extends RecyclerView.ViewHolder {
             }
             catch (Exception ex)
             {
-                Log.i("AUDIO",ex.getMessage() + " \n" + ex.getStackTrace());
+                Log.d("AUDIO",ex.getMessage() + " \n" + ex.getStackTrace());
                 MainActivity.curTrackIndex = -1;
             }
 
@@ -124,7 +126,7 @@ public class MusicHolder extends RecyclerView.ViewHolder {
                 }
                 MainActivity.audiobarIconModePlay = true;
             } catch (IOException e) {
-                Log.i("EXCEPTION",e.getMessage());
+                Log.d("EXCEPTION",e.getMessage());
                 e.printStackTrace();
             }
         });

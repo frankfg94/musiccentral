@@ -1,4 +1,4 @@
-package com.gillioen.navbarmusiccentral;
+package com.gillioen.navbarmusiccentral.players;
 
 import java.io.IOException;
 import java.io.Serializable;

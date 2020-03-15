@@ -12,11 +12,4 @@ public class Playlist implements Serializable {
     public String description;
     public String url;
 
-    public  Comparable<Playlist> comparatorPlaylissts = new Comparable<Playlist>() {
-        @Override
-        public int compareTo(Playlist o) {
-            return o.name.compareTo(name);
-        }
-    };
-
 }

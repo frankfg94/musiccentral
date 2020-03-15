@@ -1,10 +1,6 @@
-package com.gillioen.navbarmusiccentral.Preferences;
-
-
+package com.gillioen.navbarmusiccentral.preferences;
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.gillioen.navbarmusiccentral.R;
 
 

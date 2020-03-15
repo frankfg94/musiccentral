@@ -18,9 +18,13 @@ import com.deezer.sdk.model.Permissions;
 import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.connect.event.DialogListener;
 import com.deezer.sdk.network.request.event.DeezerError;
-import com.gillioen.navbarmusiccentral.BlindTest.BlindTest;
-import com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity;
-import com.gillioen.navbarmusiccentral.Service.AudiobarNotificationService;
+import com.gillioen.navbarmusiccentral.blindTest.BlindTest;
+import com.gillioen.navbarmusiccentral.players.BaseAudioPlayer;
+import com.gillioen.navbarmusiccentral.players.DeezerPlayer;
+import com.gillioen.navbarmusiccentral.players.LocalPlayer;
+import com.gillioen.navbarmusiccentral.players.SpotifyPlayer;
+import com.gillioen.navbarmusiccentral.preferences.MyPreferenceActivity;
+import com.gillioen.navbarmusiccentral.service.AudiobarNotificationService;
 import com.gillioen.navbarmusiccentral.ui.Home.RecyclerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -31,6 +35,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -114,8 +119,11 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     // Request code will be used to verify if result comes from the login activity. Can be set to any integer.
     public static final int REQUEST_CODE = 1334;
+    private View parentLayout;
 
     private AppBarConfiguration mAppBarConfiguration;
+
+    FloatingActionButton fab;
 
     @Override
     public void callback(List<AudioTrack> rv) {
@@ -126,11 +134,14 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         @Override
         public void spotifyConnected() {
             doStuff("spotify",true);
+            Snackbar.make(findViewById(R.id.coordinator_layout), "Spotify Account connected", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
 
         @Override
-        public void deezerConnected() {
+        public void deezerConnected()
+        {
             doStuff("deezer",true);
+             Snackbar.make(findViewById(R.id.coordinator_layout), "Deezer Account connected", Snackbar.LENGTH_LONG).setAction("Action", null).show();
         }
     };
 
@@ -146,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
     public static void syncWithService(AudioTrack t, boolean paused, Context c)
     {
-        Log.i("AUDIOSERVICE","Main activity sends the broadcast, awaiting response from service");
+        Log.d("AUDIOSERVICE","Main activity sends the broadcast, awaiting response from service");
         Intent audioService = new Intent(c, AudiobarNotificationService.class);
         audioService.putExtra("todo","sync_cur_track");
         audioService.putExtra("imgPath",t.getImgPath());
@@ -157,9 +168,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         c.startService(audioService);
     }
 
-    AudioBroadcastReceiver broadcast;
-
-
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -168,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -190,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
 
         localPlayer = new LocalPlayer();
 
+        // Verifying storage permissions
         if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 ActivityCompat.requestPermissions(MainActivity.this,
@@ -201,12 +210,14 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         }
         else
         {
+            // If we have the storage permissions, load the apis
             doStuff("local",true);
             if(SpotifyAppRemote.isSpotifyInstalled(getApplicationContext()))
                 SpotifyAuthenticateFull(CLIENT_ID_SPOTIFY,REDIRECT_URI);
              DeezerAuthenticateFull(CLIENT_ID_DEEZER);
         }
 
+        // Enabling the random music shuffle feature
         sd = new ShakeEventManager();
         sd.setListener(this);
         sd.init(this);
@@ -229,8 +240,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         deezerToken = savedInstanceState.getString("deezerToken");
         spotifyToken = savedInstanceState.getString("spotifyToken");
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -276,17 +285,17 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         DialogListener listener = new DialogListener(){
             public void onComplete(Bundle values) {
                 deezerPlayer = new DeezerPlayer(getApplication(),deezerAPI);
-                Log.i("DEEZER","Connected " + deezerAPI.getAccessToken() + " / " +  deezerAPI.getCurrentUser().getFirstName() + " " + deezerAPI.getCurrentUser().getLastName());
+                Log.d("DEEZER","Connected " + deezerAPI.getAccessToken() + " / " +  deezerAPI.getCurrentUser().getFirstName() + " " + deezerAPI.getCurrentUser().getLastName());
                 apiLoaded.deezerConnected();
             }
 
             public void onCancel() {
-                Log.i("DEEZER","canceled");
+                Log.d("DEEZER","canceled");
 
             }
 
             public void onException(Exception e) {
-                Log.i("DEEZER","Error " + e.getMessage() + System.lineSeparator() + e.getStackTrace()) ;
+                Log.d("DEEZER","Error " + e.getMessage() + System.lineSeparator() + e.getStackTrace()) ;
 
             }
         };
@@ -483,9 +492,6 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         for( int i = 0 ; i < playListsArray.length(); i++)
             spotPlaylistsIDS.add(playListsArray.getJSONObject(i).getString("id"));
 
-
-        // ATTENTION IL VA FALLOIR ATTENDRE QU'ON AIT LA LISTE DES PLAYLISTS
-
         // Les allPlaylists seront transferées à l'activité playlist
         ArrayList<Playlist> playlistsToTransfer = new ArrayList<>();
         int y = 0;
@@ -508,9 +514,9 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
             {
                 JSONObject curTrackJSON = tracksArray.getJSONObject(i).getJSONObject("track");
                 AudioTrack track = new AudioTrack();
-                Log.i("JSON",curTrackJSON.toString());
+                Log.d("JSON",curTrackJSON.toString());
                 track.title = curTrackJSON.getString("name") ;
-                Log.i("CURTRACK",curTrackJSON.toString());
+                Log.d("CURTRACK",curTrackJSON.toString());
                 JSONObject album = curTrackJSON.getJSONObject("album");
                 JSONArray images = album.getJSONArray("images");
                 JSONObject firstImg = images.getJSONObject(0);
@@ -529,7 +535,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 track.setDate(date);
                 spotMusics.add(track);
                 tracksForCurPlaylist.add(track);
-                Log.i("SMUSIC",track.toString());
+                Log.d("SMUSIC",track.toString());
             }
 
             pl.tracks.addAll(tracksForCurPlaylist);
@@ -589,11 +595,11 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
         }
         catch (Exception ex)
         {
-            Log.i("AUDIO",ex.getMessage() + " \n" + ex.getStackTrace());
+            Log.d("AUDIO",ex.getMessage() + " \n" + ex.getStackTrace());
             curTrackIndex = -1;
         }
 
-        Log.i("AUDIO","Index is now " + curTrackIndex);
+        Log.d("AUDIO","Index is now " + curTrackIndex);
         if(localPlayer != null)
             localPlayer.Stop();
         if(spotifyPlayer != null)
@@ -642,6 +648,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                 if(prefs.getBoolean("ShakeReqHeadphones", false) && !Utilities.areHeadphonesPlugged(getApplicationContext()))
                     return;
 
+                // Play a random music if we have musics
                 if(musicList != null && musicList.size() > 0)
                 {
                     lastShakeDate = new Date();
@@ -653,7 +660,7 @@ public class MainActivity extends AppCompatActivity implements ShakeEventManager
                         toastShake = new Toast(getApplicationContext());
                     }
                     toastShake.cancel();
-                    toastShake.makeText(getApplicationContext(), String.format("Musique : (%s)  (%s)",random.getTitle(), prefs.getString("shake", "10")), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), String.format("Musique : (%s)  (%s)",random.getTitle(), prefs.getString("shake", "10")), Toast.LENGTH_SHORT).show();
                 }
             }
         }

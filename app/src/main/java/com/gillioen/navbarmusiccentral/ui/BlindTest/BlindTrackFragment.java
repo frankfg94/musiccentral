@@ -11,8 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.gillioen.navbarmusiccentral.BlindTest.BlindTest;
-import com.gillioen.navbarmusiccentral.BlindTest.BlindTestBuilder;
+import com.gillioen.navbarmusiccentral.blindTest.BlindTest;
+import com.gillioen.navbarmusiccentral.blindTest.BlindTestBuilder;
 import com.gillioen.navbarmusiccentral.MainActivity;
 import com.gillioen.navbarmusiccentral.NotificationGenerator;
 import com.gillioen.navbarmusiccentral.R;

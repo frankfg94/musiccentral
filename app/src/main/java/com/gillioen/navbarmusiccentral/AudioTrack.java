@@ -55,7 +55,10 @@ public class AudioTrack implements Serializable
     }
 
     public void setArtist(String artist) {
-        this.artist = artist;
+        if(artist.equals("<unknown>"))
+            this.artist = "Inconnu";
+        else
+            this.artist = artist;
     }
 
     public String getPlayListPath() {

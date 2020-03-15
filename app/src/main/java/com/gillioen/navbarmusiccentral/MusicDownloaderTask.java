@@ -45,7 +45,7 @@ public class MusicDownloaderTask extends AsyncTask<String, Integer, String> {
             try {
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                  s = readStream(in);
-                Log.i("JFL", s);
+                Log.d("JFL", s);
             } finally {
                 urlConnection.disconnect();
             }

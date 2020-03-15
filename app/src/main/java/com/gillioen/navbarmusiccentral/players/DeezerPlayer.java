@@ -1,4 +1,4 @@
-package com.gillioen.navbarmusiccentral;
+package com.gillioen.navbarmusiccentral.players;
 
 import android.app.Application;
 
@@ -14,7 +14,7 @@ import java.io.IOException;
 public class DeezerPlayer implements  BaseAudioPlayer{
     private Application app;
     private final DeezerConnect api;
-    TrackPlayer tp = null;
+    public TrackPlayer tp = null;
     PlaylistPlayer pp = null;
     public boolean isPlaying = false;
     public DeezerPlayer(Application app, DeezerConnect api) {

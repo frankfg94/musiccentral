@@ -1,4 +1,4 @@
-package com.gillioen.navbarmusiccentral.Preferences;
+package com.gillioen.navbarmusiccentral.preferences;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;

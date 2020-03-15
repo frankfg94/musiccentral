@@ -51,7 +51,7 @@
 
         <!-- Preferences -->
         <activity
-            android:name="com.gillioen.navbarmusiccentral.Preferences.MyPreferenceActivity"
+            android:name="com.gillioen.navbarmusiccentral.preferences.MyPreferenceActivity"
             android:label="Preferences">
         </activity>
         <receiver android:name=".AudioBroadcastReceiver">
@@ -61,7 +61,7 @@
                 <action android:name="com.gillioen.navbarmusiccentral.next" />
             </intent-filter>
         </receiver>
-        <service android:name=".Service.AudiobarNotificationService"/>
+        <service android:name=".service.AudiobarNotificationService"/>
     </application>
 
 </manifest>

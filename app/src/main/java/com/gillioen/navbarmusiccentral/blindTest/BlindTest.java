@@ -1,4 +1,4 @@
-package com.gillioen.navbarmusiccentral.BlindTest;
+package com.gillioen.navbarmusiccentral.blindTest;
 
 import android.util.Log;
 import android.view.View;

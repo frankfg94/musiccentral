@@ -1,4 +1,4 @@
-package com.gillioen.navbarmusiccentral;
+package com.gillioen.navbarmusiccentral.players;
 
 import android.util.Log;
 

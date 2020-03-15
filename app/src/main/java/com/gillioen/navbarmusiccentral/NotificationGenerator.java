@@ -52,7 +52,7 @@ public  class NotificationGenerator {
     public static void showAudioPlayerNotification(Context c, String trackName, ApiType apiType, String trackPath, boolean paused) {
         if(enabled)
         {
-            Log.i("NOTIFICATION","paused " + paused);
+            Log.d("NOTIFICATION","paused " + paused);
             RemoteViews audioView = new RemoteViews(c.getPackageName(),R.layout.audio_bar);
             NotificationCompat.Builder nc = new NotificationCompat.Builder(c);
             nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -190,7 +190,7 @@ public  class NotificationGenerator {
         PendingIntent playI = PendingIntent.getBroadcast(context, 0, play, PendingIntent.FLAG_UPDATE_CURRENT);
         view.setOnClickPendingIntent(R.id.audio_bar_play, playI);
 
-        Log.i("AUDIOBAR","Audio bar listeners are ready");
+        Log.d("AUDIOBAR","Audio bar listeners are ready");
     }
 
 }

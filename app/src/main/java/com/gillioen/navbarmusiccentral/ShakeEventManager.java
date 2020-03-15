@@ -20,7 +20,7 @@ public class ShakeEventManager implements SensorEventListener {
     private static final int SHAKE_WINDOW_TIME_INTERVAL = 500; // milliseconds
 
     // Gravity force on x,y,z axis
-    private float gravity[] = new float[3];
+    private float[] gravity = new float[3];
 
     private int counter;
     private long firstMovTime;
@@ -45,13 +45,6 @@ public class ShakeEventManager implements SensorEventListener {
         sManager.registerListener(this, s, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-
-    /*public String getShakeValues() {
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(
-                        ctx);
-        return prefs.getString("shake","");
-    } */
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
 
@@ -112,14 +105,13 @@ public class ShakeEventManager implements SensorEventListener {
 
 
     private void resetAllData() {
-        //Log.d("SwA", "Reset all data");
         counter = 0;
         firstMovTime = System.currentTimeMillis();
     }
 
 
-    public static interface ShakeListener {
-        public void onShake();
+    public interface ShakeListener {
+        void onShake();
     }
 
     @Override

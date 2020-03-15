@@ -1,25 +1,15 @@
-package com.gillioen.navbarmusiccentral.Service;
+package com.gillioen.navbarmusiccentral.service;
 
 import android.app.IntentService;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Color;
-import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 
 import com.gillioen.navbarmusiccentral.ApiType;
 import com.gillioen.navbarmusiccentral.AudioTrack;
 import com.gillioen.navbarmusiccentral.MainActivity;
 import com.gillioen.navbarmusiccentral.NotificationGenerator;
-import com.gillioen.navbarmusiccentral.R;
 
 public class AudiobarNotificationService extends IntentService {
 
@@ -34,7 +24,7 @@ public class AudiobarNotificationService extends IntentService {
     }
 
     public AudiobarNotificationService(){
-        super("com.gillioen.navbarmusiccentral.Service");
+        super("com.gillioen.navbarmusiccentral.service");
     }
 
     public static MainActivity ma;
