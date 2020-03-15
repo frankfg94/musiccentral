@@ -32,12 +32,10 @@ import java.util.concurrent.ExecutionException;
 
 public class PlaylistFragment extends Fragment {
 
-    private PlaylistViewModel galleryViewModel;
     GridLayout gridLayout;
     CardView dummyCardView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,ViewGroup container, Bundle savedInstanceState) {
-        galleryViewModel = ViewModelProviders.of(this).get(PlaylistViewModel.class);
 
         View root = inflater.inflate(R.layout.fragment_playlists, container, false);
         gridLayout = root.findViewById(R.id.playlistGrid);
@@ -58,6 +56,7 @@ public class PlaylistFragment extends Fragment {
         return root;
     }
 
+    // Generate & display the cardviews from the given playlist
     private void AddAPISPlayLists(@NonNull GridLayout layout, @NonNull ArrayList<Playlist> pLists) throws ExecutionException, InterruptedException, JSONException {
         for(Playlist pl : pLists) {
             CardView cv = generateCardViewFromPlaylist(pl);
@@ -69,14 +68,14 @@ public class PlaylistFragment extends Fragment {
     }
 
     public int POS_IMAGE = 0;
-    public int POS_TEXTVIEW = 1;
+
     @NonNull
     private CardView generateCardViewFromPlaylist(@NonNull Playlist pl)
     {
 
         CardView cView = (CardView) LayoutInflater.from(getActivity()).inflate(R.layout.playlist_cardview, null);
 
-        // On stocke les données de la playlist
+        // We store the data in the playlist
         cView.setTag(pl);
         LinearLayout parentLayout = (LinearLayout) cView.getChildAt(0);
         ImageView img = (ImageView) parentLayout.getChildAt(POS_IMAGE);
@@ -134,7 +133,7 @@ public class PlaylistFragment extends Fragment {
         TextView tv =  cView.findViewById(R.id.textViewCard);
         tv.setText(pl.name);
 
-        Log.i("CVIEW","Generated Card view for " + pl.name + "'\'" + pl.tracks.size() + " tracks");
+        Log.d("CVIEW","Generated Card view for " + pl.name + "'\'" + pl.tracks.size() + " tracks");
         return  cView;
     }
 }

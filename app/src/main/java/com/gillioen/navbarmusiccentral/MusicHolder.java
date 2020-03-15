@@ -32,15 +32,13 @@ public class MusicHolder extends RecyclerView.ViewHolder {
     @Nullable
     private BaseAudioPlayer localPlayer = null;
     @Nullable
-    private BaseAudioPlayer currentPlayer = null;
-    @Nullable
     private BaseAudioPlayer deezerPlayer = null;
     @Nullable
     private BaseAudioPlayer spotifyPlayer = null;
     @Nullable
     private Boolean isSpotifyPremium = null;
 
-    public MusicHolder(@NonNull View itemView, BaseAudioPlayer localPlayer, BaseAudioPlayer currentPlayer, BaseAudioPlayer deezerPlayer, Boolean isSpotifyPremium, BaseAudioPlayer spotifyPlayer, Context context) {
+    public MusicHolder(@NonNull View itemView, BaseAudioPlayer localPlayer, BaseAudioPlayer deezerPlayer, Boolean isSpotifyPremium, BaseAudioPlayer spotifyPlayer, Context context) {
         super(itemView);
         tviewTitle = itemView.findViewById(R.id.tviewTitle);
         tviewAuthor = itemView.findViewById(R.id.tviewAuthor);
@@ -49,7 +47,6 @@ public class MusicHolder extends RecyclerView.ViewHolder {
         myElement = itemView.findViewById(R.id.myElement);
 
         this.localPlayer = localPlayer;
-        this.currentPlayer = currentPlayer;
         this.deezerPlayer = deezerPlayer;
         this.isSpotifyPremium = isSpotifyPremium;
         this.spotifyPlayer = spotifyPlayer;
@@ -120,7 +117,6 @@ public class MusicHolder extends RecyclerView.ViewHolder {
                 switch (track.api)
                 {
                     case None:
-                        currentPlayer = localPlayer;
                         localPlayer.Play(track.audioPath);
                         break;
                     case Spotify:

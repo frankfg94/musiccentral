@@ -17,16 +17,14 @@ public class MusicAdapter  extends RecyclerView.Adapter<MusicHolder> {
 
     private List<AudioTrack> tracks;
     BaseAudioPlayer localPlayer;
-    BaseAudioPlayer currentPlayer;
     BaseAudioPlayer deezerPlayer;
     BaseAudioPlayer spotifyPlayer;
     private Context c;
     Boolean isSpotifyPremium;
 
-    public MusicAdapter(List<AudioTrack> tracks, BaseAudioPlayer localPlayer, BaseAudioPlayer currentPlayer, BaseAudioPlayer deezerPlayer, Boolean isSpotifyPremium, BaseAudioPlayer spotifyPlayer, Context c){
+    public MusicAdapter(List<AudioTrack> tracks, BaseAudioPlayer localPlayer, BaseAudioPlayer deezerPlayer, Boolean isSpotifyPremium, BaseAudioPlayer spotifyPlayer, Context c){
         this.tracks = tracks;
         this.localPlayer = localPlayer;
-        this.currentPlayer = currentPlayer;
         this.deezerPlayer = deezerPlayer;
         this.isSpotifyPremium = isSpotifyPremium;
         this.spotifyPlayer = spotifyPlayer;
@@ -37,7 +35,7 @@ public class MusicAdapter  extends RecyclerView.Adapter<MusicHolder> {
     @Override
     public MusicHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_audiotrack_row, parent,false);
-        final MusicHolder musicHolder = new MusicHolder(layoutView, localPlayer, currentPlayer, deezerPlayer, isSpotifyPremium, spotifyPlayer, c);
+        final MusicHolder musicHolder = new MusicHolder(layoutView, localPlayer, deezerPlayer, isSpotifyPremium, spotifyPlayer, c);
         return musicHolder;
     }
 
@@ -54,7 +52,7 @@ public class MusicAdapter  extends RecyclerView.Adapter<MusicHolder> {
 
     public void filterList(ArrayList<AudioTrack> filteredList) {
         tracks = filteredList;
-        notifyDataSetChanged(); // On affiche les résultats de la recherche immédiatement
+        notifyDataSetChanged(); // We tell the recycler view to update its view
     }
 
 

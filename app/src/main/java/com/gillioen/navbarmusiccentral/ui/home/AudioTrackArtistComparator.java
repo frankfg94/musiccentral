@@ -1,4 +1,4 @@
-package com.gillioen.navbarmusiccentral.ui.Home;
+package com.gillioen.navbarmusiccentral.ui.home;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

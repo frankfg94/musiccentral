@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.gillioen.navbarmusiccentral.AudioTrack;
 import com.gillioen.navbarmusiccentral.R;
-import com.gillioen.navbarmusiccentral.ui.BlindTest.BlindTrackFragment;
+import com.gillioen.navbarmusiccentral.ui.blindTest.BlindTrackFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -79,8 +79,8 @@ public class BlindTest {
     }
     public void startGame(@NonNull BlindTrackFragment blindTrackFragment, @NonNull View root){
         int i = 0;
-        Log.i("BLINDTEST","Let the blindtest BEGIN");
-        Log.i("BLINDTEST",toString());
+        Log.d("BLINDTEST","Let the blindtest BEGIN");
+        Log.d("BLINDTEST",toString());
         bar = root.findViewById(R.id.progressBarBlindTrack);
         bar.setMax(getGameTrackCount());
         startGameAtTrackNumber(blindTrackFragment,root,i);
@@ -101,16 +101,10 @@ public class BlindTest {
         }
         else
         {
-            Log.i("BLINDTEST","Finished playing the tracks");
-           // Nécéssite l'UI thread pour ne pas planter
-            // Toast.makeText(root.getContext(),"Finished playing blindtest",Toast.LENGTH_LONG);
+            Log.d("BLINDTEST","Finished playing the tracks");
         }
     }
 
-    public void randomizeTracks()
-    {
-       Collections.shuffle(getBlindTracks());
-    }
 
     public int getGameTrackCount() {
         return gameTrackCount;

@@ -1,6 +1,4 @@
-package com.gillioen.navbarmusiccentral.ui.Home;
-
-import androidx.recyclerview.widget.RecyclerView;
+package com.gillioen.navbarmusiccentral.ui.home;
 
 import com.gillioen.navbarmusiccentral.AudioTrack;
 

@@ -1,4 +1,4 @@
-package com.gillioen.navbarmusiccentral.ui.BlindTest;
+package com.gillioen.navbarmusiccentral.ui.blindTest;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -23,14 +23,12 @@ import com.gillioen.navbarmusiccentral.R;
 
 public class BlindTestConfigFragment extends Fragment {
 
-    private BlindTrackViewModel blindTrackViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,ViewGroup container, Bundle savedInstanceState) {
 
         MainActivity ma = (MainActivity)(getActivity());
         BlindTestBuilder builder = new BlindTestBuilder(ma.musicList);
-        Log.i("BLINDTEST","Creating fragment blindTrack");
-        blindTrackViewModel = ViewModelProviders.of(this).get(BlindTrackViewModel.class);
+        Log.d("BLINDTEST","Creating fragment blindTrack");
         View root = inflater.inflate(R.layout.fragment_blindtest_config, container, false);
 
         // Fetching controls
@@ -48,7 +46,7 @@ public class BlindTestConfigFragment extends Fragment {
         numberPickerTrackCount.setValue(BlindTest.defaultGameTrackCount);
         choicesRadioGroup.getChildAt(BlindTest.defaultChoiceCountForEachTrack);
 
-        setListeners( startBlindTestButton,choicesRadioGroup, builder,root);
+        setListeners( startBlindTestButton,choicesRadioGroup,builder,numberPickerListen,numberPickerReveal,numberPickerTrackCount,root);
 
         return root;
     }
@@ -66,7 +64,9 @@ public class BlindTestConfigFragment extends Fragment {
     }
 
     // The values will be automatically adjusted by the getters & setters
-    private void setListeners(@NonNull Button startButton, @NonNull RadioGroup radioGroup, @NonNull BlindTestBuilder builder, @NonNull View v) {
+    private void setListeners(@NonNull Button startButton, @NonNull RadioGroup radioGroup,
+                              @NonNull BlindTestBuilder builder,@NonNull NumberPicker numberPickerListen,
+                              @NonNull NumberPicker numberPickerReveal, @NonNull NumberPicker numberPickerTrackCount, @NonNull View v) {
 
 
         startButton.setOnClickListener(e -> {
@@ -74,7 +74,10 @@ public class BlindTestConfigFragment extends Fragment {
             int selectedId = radioGroup.getCheckedRadioButtonId();
             RadioButton radioButton = v.findViewById(selectedId);
             int choiceCount = Integer.parseInt(String.valueOf(radioButton.getText()));
-            builder.setChoiceCountForEachTrack(choiceCount);
+            builder.setChoiceCountForEachTrack(choiceCount)
+                    .setGameTrackCount(numberPickerTrackCount.getValue())
+                    .setRevealDurSeconds(numberPickerReveal.getValue())
+                    .setTrackPlayDurationSec(numberPickerListen.getValue());
 
             // passing the blindtest to the activity
             MainActivity ma = (MainActivity) BlindTestConfigFragment.this.getActivity();

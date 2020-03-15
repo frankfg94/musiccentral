@@ -24,7 +24,7 @@ import com.gillioen.navbarmusiccentral.players.LocalPlayer;
 import com.gillioen.navbarmusiccentral.players.SpotifyPlayer;
 import com.gillioen.navbarmusiccentral.preferences.MyPreferenceActivity;
 import com.gillioen.navbarmusiccentral.service.AudiobarNotificationService;
-import com.gillioen.navbarmusiccentral.ui.Home.RecyclerListener;
+import com.gillioen.navbarmusiccentral.ui.home.RecyclerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import android.os.PersistableBundle;

@@ -1,4 +1,4 @@
-package com.gillioen.navbarmusiccentral.ui.BlindTest;
+package com.gillioen.navbarmusiccentral.ui.blindTest;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -19,15 +19,12 @@ import com.gillioen.navbarmusiccentral.R;
 
 public class BlindTrackFragment extends Fragment {
 
-    private BlindTrackViewModel blindTrackViewModel;
     BlindTest bt;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        Log.i("BLINDTEST","Creating fragment blindTrack");
-        blindTrackViewModel =
-                ViewModelProviders.of(this).get(BlindTrackViewModel.class);
+        Log.d("BLINDTEST","Creating fragment blindTrack");
         View root = inflater.inflate(R.layout.fragment_blindtrack, container, false);
         MainActivity ma = (MainActivity)getActivity();
         BlindTest configBt = ma.createdBlindTest;
@@ -53,7 +50,7 @@ public class BlindTrackFragment extends Fragment {
                     .build();
         }
 
-        Log.i("BLINDTEST",bt.toString());
+        Log.d("BLINDTEST",bt.toString());
         NotificationGenerator.setEnabled(false);
         bt.startGame(this,root);
 

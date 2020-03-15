@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.gillioen.navbarmusiccentral.ui.Home.HomeFragment"
+        android:name="com.gillioen.navbarmusiccentral.ui.home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
     <fragment
@@ -17,7 +17,7 @@
         tools:layout="@layout/fragment_playlists" />
     <fragment
         android:id="@+id/nav_blindtrack"
-        android:name="com.gillioen.navbarmusiccentral.ui.BlindTest.BlindTestConfigFragment"
+        android:name="com.gillioen.navbarmusiccentral.ui.blindTest.BlindTestConfigFragment"
         android:label="@string/menu_blindtest"
         tools:layout="@layout/fragment_blindtest_config"/>
     <fragment

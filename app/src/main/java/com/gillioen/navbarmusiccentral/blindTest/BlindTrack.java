@@ -15,7 +15,7 @@ import com.gillioen.navbarmusiccentral.AudioTrack;
 import com.gillioen.navbarmusiccentral.MainActivity;
 import com.gillioen.navbarmusiccentral.NotificationGenerator;
 import com.gillioen.navbarmusiccentral.R;
-import com.gillioen.navbarmusiccentral.ui.BlindTest.BlindTrackFragment;
+import com.gillioen.navbarmusiccentral.ui.blindTest.BlindTrackFragment;
 import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.util.ArrayList;

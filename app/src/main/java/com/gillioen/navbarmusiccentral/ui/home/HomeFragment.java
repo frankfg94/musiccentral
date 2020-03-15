@@ -1,7 +1,6 @@
-package com.gillioen.navbarmusiccentral.ui.Home;
+package com.gillioen.navbarmusiccentral.ui.home;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -32,16 +31,13 @@ import java.util.Comparator;
 
 public class HomeFragment extends Fragment {
 
-    private HomeViewModel playlistViewModel;
     @Nullable
     public ArrayList<AudioTrack> ar = null;
     private boolean ascendingSort = true;
 
-    // Sauvegarde des données du recycler view
     @Nullable
     RecyclerView rv = null;
 
-    // Mettre la donnée dans le recycler view
     @Nullable
     public MusicAdapter musicAdapter;
     private static boolean init = false;
@@ -49,16 +45,13 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStart() {
 
-        // TODO, sauvegarder le state et le charger plutôt que d'utiliser l'adapter
         super.onStart();
-        Log.i("STORE","onStart()");
         MainActivity ma = (MainActivity) (getActivity());
         rv = getView().findViewById(R.id.recyclerView);
         if(!init)
         {
             ma.setOnMusicListLoaded(list ->
                     {
-                        Log.i("STORE","READY");
                         displayMusicList();
                         init = true;
                     }
@@ -73,16 +66,18 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        // Reloading the recycler view
         displayMusicList();
-        Log.i("STATE","onResume()");
+        Log.d("STATE","onResume()");
     }
 
     static int i = 0;
     void displayMusicList()
     {
-        Log.i("AUDIOTRACK","display Music List" + (++i));
+        Log.d("AUDIOTRACK","display Music List" + (++i));
         MainActivity ma = (MainActivity) getActivity();
-        musicAdapter = new MusicAdapter(ma.musicList, ma.localPlayer, ma.currentPlayer, ma.deezerPlayer, ma.isSpotifyPremium, ma.spotifyPlayer, getContext());
+        musicAdapter = new MusicAdapter(ma.musicList, ma.localPlayer, ma.deezerPlayer, ma.isSpotifyPremium, ma.spotifyPlayer, getContext());
         rv.setAdapter(musicAdapter);
         rv.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
     }
@@ -90,13 +85,18 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 
-        playlistViewModel =  ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         EditText searchBar =  root.findViewById(R.id.search_bar_fragment_home);
         Spinner sp = root.findViewById(R.id.spinner);
         Button but = root.findViewById(R.id.sortTracksModeButton);
         MainActivity act = ((MainActivity)getActivity());
+        setListeners(searchBar,sp,but,act);
+        return root;
+    }
+
+    private void setListeners(EditText searchBar, Spinner sp, Button but, MainActivity act)
+    {
         but.setOnClickListener(v -> {
             if(ar == null || ar.size() == 0)
             {
@@ -132,7 +132,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-
+        // Setting the different comparator classes
         sp.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(@NonNull AdapterView<?> parent, View view, int position, long id) {
@@ -160,7 +160,7 @@ public class HomeFragment extends Fragment {
                 if(musicAdapter!=null)
                     musicAdapter.filterList(ar);
                 else
-                    Log.i("NULL","NULL");
+                    Log.d("NULL","NULL");
             }
 
             @Override
@@ -168,14 +168,12 @@ public class HomeFragment extends Fragment {
 
             }
         });
-        return root;
     }
 
 
 
     /**
-     * Filtre par auteur et par nom de musique
-     * @param text texte de la barre de recherche
+     * Filter by author or music name
      */
     private void filterRecyclerView(@NonNull String text){
         ArrayList<AudioTrack> filteredList = new ArrayList();
@@ -185,11 +183,11 @@ public class HomeFragment extends Fragment {
             if(t.getTitle().toLowerCase().contains(text.toLowerCase()) || t.getArtist().toLowerCase().contains(text.toLowerCase()))
             {
                 filteredList.add(t);
-                Log.i("CHECK","FOUND : " + t);
+                Log.d("SEARCH","FOUND : " + t);
             }
         }
 
-        // Envoi des musiques trouvées dans l'adapter pour maj graphique
+        // Display the filteredList in the recycler view
         if(musicAdapter != null)
             musicAdapter.filterList(filteredList);
     }
